@@ -1,3 +1,6 @@
+// Global Providers + Auth Provider
+
+
 import { GluestackUIProvider } from '@/components/ui/gluestack-ui-provider';
 import '@/global.css';
 import FontAwesome from '@expo/vector-icons/FontAwesome';
