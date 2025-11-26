@@ -8,18 +8,41 @@ import { Pressable } from "react-native";
 import { Checkbox, CheckboxIndicator, CheckboxIcon, CheckboxLabel } from "@/components/ui/checkbox";
 import { Divider } from "@/components/ui/divider";
 import { CheckIcon } from "@/components/ui/icon";
+import { useSignIn } from '@clerk/clerk-expo'
+
 
 export default function Login() {
+  const { signIn, setActive, isLoaded } = useSignIn()
   const router = useRouter();
-  const [email, setEmail] = useState("");
-  const [password, setPassword] = useState("");
 
-  const handleLogin = () => {
-    const mockRole = email.includes("doc") ? "doctor" : "user";
-    if (mockRole === "doctor") {
-      router.replace("/(doctor)/dashboard");
-    } else {
-      router.replace("/(user)/dashboard");
+  const [emailAddress, setEmailAddress] = React.useState('')
+  const [password, setPassword] = React.useState('')
+
+  // Handle the submission of the sign-in form
+  const handleLogin = async ()  => {
+    if (!isLoaded) return
+
+    // Start the sign-in process using the email and password provided
+    try {
+      const signInAttempt = await signIn.create({
+        identifier: emailAddress,
+        password,
+      })
+
+      // If sign-in process is complete, set the created session as active
+      // and redirect the user
+      if (signInAttempt.status === 'complete') {
+        await setActive({ session: signInAttempt.createdSessionId })
+        router.replace('/(user)/dashboard') // need to give roles later 
+      } else {
+        // If the status isn't complete, check why. User might need to
+        // complete further steps.
+        console.error(JSON.stringify(signInAttempt, null, 2))
+      }
+    } catch (err) {
+      // See https://clerk.com/docs/custom-flows/error-handling
+      // for more info on error handling
+      console.error(JSON.stringify(err, null, 2))
     }
   };
 
@@ -53,18 +76,19 @@ export default function Login() {
 
         <Input className="mb-4">
           <InputField
+            autoCapitalize="none"
+            value={emailAddress}
             placeholder="example@gmail.com"
-            value={email}
-            onChangeText={setEmail}
+            onChangeText={(emailAddress) => setEmailAddress(emailAddress)}
           />
         </Input>
 
         <Input className="mb-3">
           <InputField
-            placeholder="Password"
-            secureTextEntry
             value={password}
-            onChangeText={setPassword}
+            placeholder="Password"
+            secureTextEntry={true}
+            onChangeText={(password) => setPassword(password)}
           />
           <InputSlot>
           </InputSlot>
@@ -88,33 +112,6 @@ export default function Login() {
         <Button onPress={handleLogin} className="rounded-xl mb-6 h-14 bg-primary-600">
           <ButtonText className="font-bold">Login</ButtonText>
         </Button>
-
-        {/* DIVIDER */}
-        <Box className="flex-row items-center my-4">
-          <Divider className="flex-1 mr-3" />
-          <Text className="text-gray-500 text-sm">OR CONTINUE WITH</Text>
-          <Divider className="flex-1 ml-3" />
-        </Box>
-
-        {/* SOCIAL BUTTONS */}
-        <Box className="flex-row justify-center space-x-6 mt-4">
-          <Pressable>
-            <Box className="p-4 w-24 h-12 mr-3 border border-gray-300 rounded-md">
-            </Box>
-          </Pressable>
-
-          <Pressable>
-            <Box className="p-4 w-24 h-12 mr-3 border border-gray-300 rounded-md">
-              {/* <Twitter size={22} /> */}
-            </Box>
-          </Pressable>
-
-          <Pressable>
-            <Box className="p-4 w-24 h-12 border border-gray-300 rounded-md">
-              {/* <Github size={22} /> */}
-            </Box>
-          </Pressable>
-        </Box>
       </Box>
     </Box>
   );

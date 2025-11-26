@@ -5,18 +5,85 @@ import { Input, InputField } from "@/components/ui/input";
 import { Button, ButtonText } from "@/components/ui/button";
 import { Text } from "@/components/ui/text";
 import { useRouter, Link } from "expo-router";
+import { useSignUp } from '@clerk/clerk-expo'
 
 export default function Signup() {
-  const router = useRouter();
+  const { isLoaded, signUp, setActive } = useSignUp()
+  const router = useRouter()
 
-  const [email, setEmail] = useState("");
-  const [password, setPassword] = useState("");
 
-  const handleSignup = () => {
-    // TODO: create account then redirect
-    router.replace("/(auth)/login");
+  const [emailAddress, setEmailAddress] = React.useState('')
+  const [password, setPassword] = React.useState('')
+  const [pendingVerification, setPendingVerification] = React.useState(false)
+  const [code, setCode] = React.useState('')
+
+  
+  const handleSignup = async () => {
+     if (!isLoaded) return
+
+    // Start sign-up process using email and password provided
+    try {
+      await signUp.create({
+        emailAddress,
+        password,
+      })
+      // Send user an email with verification code
+      await signUp.prepareEmailAddressVerification({ strategy: 'email_code' })
+
+      // Set 'pendingVerification' to true to display second form
+      // and capture OTP code
+      setPendingVerification(true)
+    } catch (err) {
+      // See https://clerk.com/docs/custom-flows/error-handling
+      // for more info on error handling
+      console.error(JSON.stringify(err, null, 2))
+    }
+    
+    // // TODO: create account then redirect
+    // router.replace("/(auth)/login");
   };
+  // Handle submission of verification form
+  const handleVerifyPress = async () => {
+    if (!isLoaded) return
 
+    try {
+      // Use the code the user provided to attempt verification
+      const signUpAttempt = await signUp.attemptEmailAddressVerification({
+        code,
+      })
+
+      // If verification was completed, set the session to active
+      // and redirect the user
+      if (signUpAttempt.status === 'complete') {
+        await setActive({ session: signUpAttempt.createdSessionId })
+        router.replace('/')
+      } else {
+        // If the status is not complete, check why. User may need to
+        // complete further steps.
+        console.error(JSON.stringify(signUpAttempt, null, 2))
+      }
+    } catch (err) {
+      // See https://clerk.com/docs/custom-flows/error-handling
+      // for more info on error handling
+      console.error(JSON.stringify(err, null, 2))
+    }
+  }
+
+  if (pendingVerification) {
+    return (
+      <>
+        <Text>Verify your email</Text>
+        <InputField
+          value={code}
+          placeholder="Enter your verification code"
+          onChangeText={(code) => setCode(code)}
+        />
+        <Button onPress={handleVerifyPress}>
+          <Text>Verify</Text>
+        </Button>
+      </>
+    )
+  }
   return (
     <Box className="flex-1 justify-center p-6 bg-background-100">
       <Text className="text-3xl font-bold mb-8">Create Account</Text>
@@ -24,17 +91,18 @@ export default function Signup() {
       <Input className="mb-4">
         <InputField
           placeholder="Email"
-          value={email}
-          onChangeText={setEmail}
+          autoCapitalize="none"
+          value={emailAddress}
+          onChangeText={(email) => setEmailAddress(email)}
         />
       </Input>
 
       <Input className="mb-6">
         <InputField
           placeholder="Password"
-          secureTextEntry
           value={password}
-          onChangeText={setPassword}
+          secureTextEntry={true}
+          onChangeText={(password) => setPassword(password)}
         />
       </Input>
 
@@ -48,5 +116,5 @@ export default function Signup() {
         </Text>
       </Link>
     </Box>
-  );
+  )
 }

@@ -1,5 +1,8 @@
 // Global Providers + Auth Provider
 
+import { ClerkProvider } from '@clerk/clerk-expo'
+import { tokenCache } from '@clerk/clerk-expo/token-cache'
+
 
 import { GluestackUIProvider } from '@/components/ui/gluestack-ui-provider';
 import '@/global.css';
@@ -18,6 +21,8 @@ import { StatusBar } from 'expo-status-bar';
 import { Fab, FabIcon } from '@/components/ui/fab';
 import { MoonIcon, SunIcon } from '@/components/ui/icon';
 
+
+
 export {
   // Catch any errors thrown by the Layout component.
   ErrorBoundary,
@@ -27,6 +32,7 @@ SplashScreen.preventAutoHideAsync();
 
 export default function RootLayout() {
   const [loaded, error] = useFonts({
+    
     SpaceMono: require('../assets/fonts/SpaceMono-Regular.ttf'),
     ...FontAwesome.font,
   });
@@ -42,7 +48,11 @@ export default function RootLayout() {
       SplashScreen.hideAsync();
     }
   }, [loaded]);
-  return <RootLayoutNav />;
+  return (
+    <ClerkProvider ClerkProvider tokenCache={tokenCache}>
+      <Slot />
+      <RootLayoutNav />
+    </ClerkProvider>);
 }
 
 function RootLayoutNav() {

@@ -1,14 +1,14 @@
-import { Stack } from 'expo-router';
 
-export default function AuthLayout() {
-  return (
-    <Stack
-      screenOptions={{
-        headerShown: true , // No header for auth screens
-      }}
-    >
-      <Stack.Screen name="login" />
-      <Stack.Screen name="signup" />
-    </Stack>
-  );
+import { Redirect, Stack } from 'expo-router'
+import { useAuth } from '@clerk/clerk-expo'
+
+export default function AuthRoutesLayout() { 
+  const { isSignedIn } = useAuth() // useAuth() access the user's authentication state. 
+
+  // --> if user already signed in, redirect to the home page.
+  if (isSignedIn) {
+    return <Redirect href={'/'} />
+  }
+
+  return <Stack />
 }
