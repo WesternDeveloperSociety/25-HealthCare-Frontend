@@ -42,7 +42,7 @@ export default function ContactSwipeItem({
       onPanResponderMove: (_, gesture) => {
         // clamp translate
         const x = gesture.dx;
-        if (x > ACTION_WIDTH) return;
+        if (x > ACTION_WIDTH || x < -ACTION_WIDTH) return;
         translateX.setValue(x);
       },
       onPanResponderRelease: (_, gesture) => {
