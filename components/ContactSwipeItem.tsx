@@ -91,7 +91,6 @@ export default function ContactSwipeItem({
     close();
   };
 
-  { /* TODO: Read/Unread indicator */}
   const handleToggleRead = () => {
     onToggleRead?.(id);
     close();
