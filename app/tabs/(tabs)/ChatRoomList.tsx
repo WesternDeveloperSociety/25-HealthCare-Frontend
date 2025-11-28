@@ -1,5 +1,4 @@
 import React from 'react';
-import EditScreenInfo from '@/components/EditScreenInfo';
 import { Box } from '@/components/ui/box';
 import { Pressable } from '@/components/ui/pressable';
 import { Avatar, AvatarFallbackText } from '@/components/ui/avatar';
