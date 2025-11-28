@@ -3,7 +3,7 @@ import { Box } from '@/components/ui/box';
 import { Pressable } from '@/components/ui/pressable';
 import { Avatar, AvatarFallbackText } from '@/components/ui/avatar';
 import { Fab, FabIcon } from '@/components/ui/fab';
-import { AddIcon, ArrowRightIcon, ChevronRightIcon } from '@/components/ui/icon';
+import { AddIcon, ChevronRightIcon } from '@/components/ui/icon';
 import { Heading } from '@/components/ui/heading';
 import { Text } from '@/components/ui/text';
 import ContactSwipeItem from '@/components/ContactSwipeItem';
