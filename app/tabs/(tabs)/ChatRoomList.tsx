@@ -51,7 +51,7 @@ export default function ChatRoomList() {
           >
             <Pressable
               onPress={() => {
-                router.push((`/tabs/chat/${r.id}?name=${encodeURIComponent(r.name)}`) as any);
+                router.push(`/tabs/chat/${r.id}?name=${encodeURIComponent(r.name)}`);
               }}
               className="flex-row items-center w-full"
             >
