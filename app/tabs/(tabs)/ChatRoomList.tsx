@@ -20,15 +20,15 @@ export default function ChatRoomList() {
   ] as Array<any>);
 
   const handleDelete = (id: string) => {
-    setRecipients((r) => r.filter((x: any) => x.id !== id));
+    setRecipients((r) => r.filter((x) => x.id !== id));
   };
 
   const handleArchive = (id: string) => {
-    setRecipients((r) => r.map((x: any) => (x.id === id ? { ...x, archived: true } : x)));
+    setRecipients((r) => r.map((x) => (x.id === id ? { ...x, archived: true } : x)));
   };
 
   const handleToggleRead = (id: string) => {
-    setRecipients((r) => r.map((x: any) => (x.id === id ? { ...x, unread: !x.unread } : x)));
+    setRecipients((r) => r.map((x) => (x.id === id ? { ...x, unread: !x.unread } : x)));
   };
 
   return (
