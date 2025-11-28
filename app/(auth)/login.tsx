@@ -48,6 +48,7 @@ export default function Login() {
 
   return (
     <Box className="flex-1 bg-white">
+
       {/* HEADER */}
       <Box
         className="h-[230px] w-full rounded-br-[80px] justify-center items-center px-8"

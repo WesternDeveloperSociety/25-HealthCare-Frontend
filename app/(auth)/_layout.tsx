@@ -7,8 +7,9 @@ export default function AuthRoutesLayout() {
 
   // --> if user already signed in, redirect to the home page.
   if (isSignedIn) {
-    return <Redirect href={'/'} />
+    return <Redirect href={'/'} /> // **** need to edit this in next PR. 
   }
 
-  return <Stack />
+  // Hide header for all auth screens
+  return <Stack screenOptions={{ headerShown: false }} />
 }
