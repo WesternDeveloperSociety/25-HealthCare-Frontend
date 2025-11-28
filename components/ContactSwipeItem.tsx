@@ -35,7 +35,9 @@ export default function ContactSwipeItem({
 
   const panResponder = useRef(
     PanResponder.create({
-      onStartShouldSetPanResponder: () => true,
+      // allow taps to reach children (like the read indicator); only capture
+      // the gesture when a horizontal move is detected
+      onStartShouldSetPanResponder: () => false,
       onMoveShouldSetPanResponder: (_, gesture) => Math.abs(gesture.dx) > 5,
       onPanResponderMove: (_, gesture) => {
         // clamp translate
@@ -107,7 +109,7 @@ export default function ContactSwipeItem({
       <Box className="mb-2 relative rounded-lg overflow-hidden">
         {/* Background actions (right) */}
         <Box className="absolute right-0 top-0 bottom-0 flex-row items-center" style={{ width: ACTION_WIDTH }}>
-          <Pressable onPress={handleArchive} className="bg-secondary-500 flex-1 items-center justify-center h-full">
+          <Pressable onPress={handleArchive} className="bg-primary-300 flex-1 items-center justify-center h-full">
             <Text className="text-typography-0">Archive</Text>
           </Pressable>
           <Pressable onPress={handleDelete} className="bg-error-500 flex-1 items-center justify-center h-full">
@@ -118,7 +120,7 @@ export default function ContactSwipeItem({
         {/* Background action (left) */}
         <Box className="absolute left-0 top-0 bottom-0 flex-row items-center" style={{ width: ACTION_WIDTH * 0.6 }}>
           <Pressable onPress={handleToggleRead} className="bg-typography-700 flex-1 items-center justify-center h-full">
-            <Text className="text-typography-0">{unread ? 'Mark Read' : 'Unread'}</Text>
+            <Text className="text-typography-0">{unread ? 'Mark Read' : 'Mark Unread'}</Text>
           </Pressable>
         </Box>
 
@@ -127,7 +129,11 @@ export default function ContactSwipeItem({
           {...panResponder.panHandlers}
           style={[styles.row, rowAnimatedStyle]}
         >
-          <Box className="bg-blue-200 rounded-lg h-[96px] px-6 flex-row items-center w-full">
+          <Box className="bg-blue-200 rounded-lg h-[96px] px-6 flex-row items-center w-full overflow-hidden relative">
+            {/* Read indicator */}
+            <Pressable onPress={handleToggleRead} className="absolute left-0 top-0 bottom-0 w-2" accessibilityLabel="Toggle read status">
+              <Box className={`${unread ? 'bg-blue-600' : 'bg-transparent'} h-full rounded-l-lg`} />
+            </Pressable>
             {children}
           </Box>
         </Animated.View>
