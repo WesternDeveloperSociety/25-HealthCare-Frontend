@@ -1,4 +1,5 @@
-import React, { useState } from 'react';import { Box } from '@/components/ui/box';
+import React, { useState } from 'react';
+import { Box } from '@/components/ui/box';
 import { Pressable } from '@/components/ui/pressable';
 import { Avatar, AvatarFallbackText } from '@/components/ui/avatar';
 import { Fab, FabIcon } from '@/components/ui/fab';
@@ -21,11 +22,15 @@ export default function ChatRoomList() {
   };
 
   const handleArchive = (id: string) => {
-    setRecipients((r) => r.map((x) => (x.id === id ? { ...x, archived: true } : x)));
+    setRecipients((r) =>
+      r.map((x) => (x.id === id ? { ...x, archived: true } : x))
+    );
   };
 
   const handleToggleRead = (id: string) => {
-    setRecipients((r) => r.map((x) => (x.id === id ? { ...x, unread: !x.unread } : x)));
+    setRecipients((r) =>
+      r.map((x) => (x.id === id ? { ...x, unread: !x.unread } : x))
+    );
   };
 
   return (
@@ -48,12 +53,19 @@ export default function ChatRoomList() {
           >
             <Pressable
               onPress={() => {
-                router.push(`/tabs/chat/${r.id}?name=${encodeURIComponent(r.name)}`);
+                router.push(
+                  `/tabs/chat/${r.id}?name=${encodeURIComponent(r.name)}`
+                );
               }}
               className="flex-row items-center w-full"
             >
-              <Avatar size="lg" className="bg-white border-2 border-background-0">
-                <AvatarFallbackText className="text-primary-700">Dr</AvatarFallbackText>
+              <Avatar
+                size="lg"
+                className="bg-white border-2 border-background-0"
+              >
+                <AvatarFallbackText className="text-primary-700">
+                  Dr
+                </AvatarFallbackText>
               </Avatar>
 
               <Text className="ml-4 text-lg font-medium">{r.name}</Text>

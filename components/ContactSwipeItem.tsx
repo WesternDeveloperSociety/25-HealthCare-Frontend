@@ -74,18 +74,28 @@ export default function ContactSwipeItem({
   ).current;
 
   const close = () => {
-    Animated.timing(translateX, { toValue: 0, duration: 150, useNativeDriver: true }).start();
+    Animated.timing(translateX, {
+      toValue: 0,
+      duration: 150,
+      useNativeDriver: true,
+    }).start();
   };
 
   const handleDelete = () => {
     // animate collapse then call onDelete
-    Animated.timing(rowHeight, { toValue: 0, duration: 200, useNativeDriver: false }).start(() => {
+    Animated.timing(rowHeight, {
+      toValue: 0,
+      duration: 200,
+      useNativeDriver: false,
+    }).start(() => {
       LayoutAnimation.configureNext(LayoutAnimation.Presets.easeInEaseOut);
       onDelete?.(id);
     });
   };
 
-  { /* TODO: Archive function */}
+  {
+    /* TODO: Archive function */
+  }
   const handleArchive = () => {
     onArchive?.(id);
     close();
@@ -100,26 +110,46 @@ export default function ContactSwipeItem({
     transform: [{ translateX }],
   };
 
-  const containerHeight = rowHeight.interpolate({ inputRange: [0, 1], outputRange: [0, 96] });
+  const containerHeight = rowHeight.interpolate({
+    inputRange: [0, 1],
+    outputRange: [0, 96],
+  });
 
   return (
     <Animated.View style={[{ overflow: 'hidden', height: containerHeight }]}>
       {/* rounded containers for buttons underneath */}
       <Box className="mb-2 relative rounded-lg overflow-hidden">
         {/* Background actions (right) */}
-        <Box className="absolute right-0 top-0 bottom-0 flex-row items-center" style={{ width: ACTION_WIDTH }}>
-          <Pressable onPress={handleArchive} className="bg-primary-300 flex-1 items-center justify-center h-full">
+        <Box
+          className="absolute right-0 top-0 bottom-0 flex-row items-center"
+          style={{ width: ACTION_WIDTH }}
+        >
+          <Pressable
+            onPress={handleArchive}
+            className="bg-primary-300 flex-1 items-center justify-center h-full"
+          >
             <Text className="text-typography-0">Archive</Text>
           </Pressable>
-          <Pressable onPress={handleDelete} className="bg-error-500 flex-1 items-center justify-center h-full">
+          <Pressable
+            onPress={handleDelete}
+            className="bg-error-500 flex-1 items-center justify-center h-full"
+          >
             <Text className="text-typography-0">Delete</Text>
           </Pressable>
         </Box>
 
         {/* Background action (left) */}
-        <Box className="absolute left-0 top-0 bottom-0 flex-row items-center" style={{ width: ACTION_WIDTH * 0.6 }}>
-          <Pressable onPress={handleToggleRead} className="bg-typography-700 flex-1 items-center justify-center h-full">
-            <Text className="text-typography-0">{unread ? 'Mark Read' : 'Mark Unread'}</Text>
+        <Box
+          className="absolute left-0 top-0 bottom-0 flex-row items-center"
+          style={{ width: ACTION_WIDTH * 0.6 }}
+        >
+          <Pressable
+            onPress={handleToggleRead}
+            className="bg-typography-700 flex-1 items-center justify-center h-full"
+          >
+            <Text className="text-typography-0">
+              {unread ? 'Mark Read' : 'Mark Unread'}
+            </Text>
           </Pressable>
         </Box>
 
@@ -130,8 +160,14 @@ export default function ContactSwipeItem({
         >
           <Box className="bg-blue-200 rounded-lg h-[96px] px-6 flex-row items-center w-full overflow-hidden relative">
             {/* Read indicator */}
-            <Pressable onPress={handleToggleRead} className="absolute left-0 top-0 bottom-0 w-2" accessibilityLabel="Toggle read status">
-              <Box className={`${unread ? 'bg-blue-600' : 'bg-transparent'} h-full rounded-l-lg`} />
+            <Pressable
+              onPress={handleToggleRead}
+              className="absolute left-0 top-0 bottom-0 w-2"
+              accessibilityLabel="Toggle read status"
+            >
+              <Box
+                className={`${unread ? 'bg-blue-600' : 'bg-transparent'} h-full rounded-l-lg`}
+              />
             </Pressable>
             {children}
           </Box>

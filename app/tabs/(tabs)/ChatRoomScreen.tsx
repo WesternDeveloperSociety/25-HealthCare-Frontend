@@ -33,7 +33,9 @@ export default function ChatRoomScreen() {
 
   // Store messages per-recipient so chats are isolated by `recipientId`.
   // Each conversation is an array of `ChatItem` (date separators and messages).
-  const [conversations, setConversations] = useState<Record<string, ChatItem[]>>(() => ({
+  const [conversations, setConversations] = useState<
+    Record<string, ChatItem[]>
+  >(() => ({
     // Seed the currently-open recipient with a date separator + example messages.
     [rid]: [
       { id: 'd-1', kind: 'date', label: 'September 30', date: '2025-09-30' },
@@ -75,7 +77,10 @@ export default function ChatRoomScreen() {
       const prevFor = prev[rid] ?? [];
 
       const todayISO = new Date().toISOString().slice(0, 10);
-      const todayLabel = new Date().toLocaleDateString([], { month: 'long', day: 'numeric' });
+      const todayLabel = new Date().toLocaleDateString([], {
+        month: 'long',
+        day: 'numeric',
+      });
 
       // Determine the last item's date (if any)
       const last = prevFor[prevFor.length - 1];
@@ -85,14 +90,22 @@ export default function ChatRoomScreen() {
 
       // If the last date differs from today, insert a date separator before the new message.
       if (lastDate !== todayISO) {
-        itemsToAppend.push({ id: `d-${Date.now()}`, kind: 'date', label: todayLabel, date: todayISO });
+        itemsToAppend.push({
+          id: `d-${Date.now()}`,
+          kind: 'date',
+          label: todayLabel,
+          date: todayISO,
+        });
       }
 
       const messageItem: MessageItem = {
         id: String(Date.now()),
         kind: 'message',
         text: text.trim(),
-        time: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
+        time: new Date().toLocaleTimeString([], {
+          hour: '2-digit',
+          minute: '2-digit',
+        }),
         fromMe: true,
         date: todayISO,
       };
@@ -143,7 +156,10 @@ export default function ChatRoomScreen() {
               >
                 {!m.fromMe && (
                   <Box className="mr-3">
-                    <Avatar size="sm" className="bg-white border-2 border-background-0">
+                    <Avatar
+                      size="sm"
+                      className="bg-white border-2 border-background-0"
+                    >
                       <AvatarFallbackText>Dr</AvatarFallbackText>
                     </Avatar>
                   </Box>
@@ -157,11 +173,15 @@ export default function ChatRoomScreen() {
                         : 'bg-blue-200 max-w-[70%]' // lighter blue for received messages
                     }`}
                   >
-                    <Text className={`${m.fromMe ? 'text-white' : 'text-typography-900'}`}>
+                    <Text
+                      className={`${m.fromMe ? 'text-white' : 'text-typography-900'}`}
+                    >
                       {m.text}
                     </Text>
                   </Box>
-                  <Text className="text-typography-500 text-xs mt-1">{m.time}</Text>
+                  <Text className="text-typography-500 text-xs mt-1">
+                    {m.time}
+                  </Text>
                 </Box>
               </Box>
             );
@@ -171,7 +191,11 @@ export default function ChatRoomScreen() {
         {/* Typing bar (input full-width; FAB overlaps right) */}
         <Box className="absolute left-0 right-0 bottom-0 px-4 py-4 bg-background-0">
           <Box className="relative">
-            <Input size="xl" className="rounded-full w-full bg-background-50" variant="rounded">
+            <Input
+              size="xl"
+              className="rounded-full w-full bg-background-50"
+              variant="rounded"
+            >
               <InputField
                 placeholder="Send a message..."
                 value={text}
