@@ -1,6 +1,6 @@
 import React, { useState } from "react";
 import { Box } from "@/components/ui/box";
-import { Input, InputField, InputSlot, InputIcon } from "@/components/ui/input";
+import { Input, InputField, InputSlot } from "@/components/ui/input";
 import { Button, ButtonText } from "@/components/ui/button";
 import { Text } from "@/components/ui/text";
 import { useRouter, Link } from "expo-router";
