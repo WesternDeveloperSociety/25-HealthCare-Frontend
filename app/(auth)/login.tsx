@@ -17,6 +17,7 @@ export default function Login() {
 
   const [emailAddress, setEmailAddress] = React.useState('')
   const [password, setPassword] = React.useState('')
+  const [rememberMe, setRememberMe] = React.useState(false) // TODO: Implement remember me functionality in future PR
 
   // Handle the submission of the sign-in form
   const handleLogin = async ()  => {
@@ -96,17 +97,21 @@ export default function Login() {
         </Input>
 
         {/* REMEMBER + FORGOT */}
-        <Box className="flex-row justify-between items-center mb-6">
-          <Checkbox value="remember">
+        <Box className="flex-row justify-between items-center mb-6 w-full">
+          <Checkbox 
+            value="remember" 
+            isChecked={rememberMe} 
+            onChange={setRememberMe}
+          >
             <CheckboxIndicator>
               <CheckboxIcon as={CheckIcon}/>
             </CheckboxIndicator>
             <CheckboxLabel className="ml-1">Remember me</CheckboxLabel>
           </Checkbox>
 
-          <Pressable>
+          <Link href="/(auth)/forgot-password">
             <Text className="text-primary-600 text-sm">Forgot Password?</Text>
-          </Pressable>
+          </Link>
         </Box>
 
         {/* LOGIN BUTTON */}
