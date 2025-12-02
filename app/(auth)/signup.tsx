@@ -6,6 +6,7 @@ import { Button, ButtonText } from "@/components/ui/button";
 import { Text } from "@/components/ui/text";
 import { useRouter, Link } from "expo-router";
 import { useSignUp } from '@clerk/clerk-expo'
+import { useUserStore } from '@/store/userStore'
 
 export default function Signup() {
   const { isLoaded, signUp, setActive } = useSignUp()
@@ -56,6 +57,9 @@ export default function Signup() {
       // and redirect the user
       if (signUpAttempt.status === 'complete') {
         await setActive({ session: signUpAttempt.createdSessionId })
+  // TODO: call backend /api/users/me to get full user record (id, role, names)
+  // Use the Zustand store getter so this works outside of React hooks.
+  useUserStore.getState().setUser({ id: '', clerkID: emailAddress, email: emailAddress, role: null })
         router.replace('/')
       } else {
         // If the status is not complete, check why. User may need to
