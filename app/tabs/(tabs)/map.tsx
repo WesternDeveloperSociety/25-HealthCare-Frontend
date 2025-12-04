@@ -1,3 +1,6 @@
+// NOTE: Before running, replace 'YOUR_MAPBOX_TOKEN_HERE' on line 11 with your actual Mapbox token
+// Get a token from: https://account.mapbox.com/access-tokens/
+
 // app/(tabs)/(tabs)/map.tsx
 // Mapbox clinic locator with user location and custom markers
 
@@ -7,7 +10,7 @@ import Mapbox from '@rnmapbox/maps';
 import * as Location from 'expo-location';
 
 // Configure Mapbox access token
-Mapbox.setAccessToken('pk.eyJ1IjoiaGFybGVlbm1vbmRlciIsImEiOiJjbWlxcDAwbzcwZHAzM2hweXF3dHNzZ2p1In0.wCh41lgrzaEft3EBEWbNKA');
+Mapbox.setAccessToken('YOUR_MAPBOX_TOKEN_HERE'); // Team: replace with your token
 
 // Mock clinic data
 const mockClinics = [
