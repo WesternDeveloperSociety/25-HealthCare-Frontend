@@ -2,12 +2,21 @@
 // Mapbox clinic locator with user location and custom markers
 
 import React, { useState, useEffect, useRef } from 'react';
-import { View, Text, StyleSheet, Alert, ActivityIndicator, TouchableOpacity } from 'react-native';
+import {
+  View,
+  Text,
+  StyleSheet,
+  Alert,
+  ActivityIndicator,
+  TouchableOpacity,
+} from 'react-native';
 import Mapbox from '@rnmapbox/maps';
 import * as Location from 'expo-location';
 
 // Configure Mapbox access token
-Mapbox.setAccessToken('pk.eyJ1IjoiaGFybGVlbm1vbmRlciIsImEiOiJjbWlxcDAwbzcwZHAzM2hweXF3dHNzZ2p1In0.wCh41lgrzaEft3EBEWbNKA');
+Mapbox.setAccessToken(
+  'pk.eyJ1IjoiaGFybGVlbm1vbmRlciIsImEiOiJjbWlxcDAwbzcwZHAzM2hweXF3dHNzZ2p1In0.wCh41lgrzaEft3EBEWbNKA'
+);
 
 // Mock clinic data
 const mockClinics = [
@@ -86,7 +95,9 @@ const mockClinics = [
 ];
 
 export default function MapScreen() {
-  const [userLocation, setUserLocation] = useState<[number, number] | null>(null);
+  const [userLocation, setUserLocation] = useState<[number, number] | null>(
+    null
+  );
   const [selectedClinic, setSelectedClinic] = useState<any>(null);
   const [loading, setLoading] = useState(true);
   const [zoomLevel, setZoomLevel] = useState(13);
@@ -97,7 +108,7 @@ export default function MapScreen() {
     (async () => {
       try {
         let { status } = await Location.requestForegroundPermissionsAsync();
-        
+
         if (status !== 'granted') {
           Alert.alert(
             'Location Permission',
@@ -184,9 +195,7 @@ export default function MapScreen() {
           />
         )}
 
-        {userLocation && (
-          <Mapbox.UserLocation visible={true} />
-        )}
+        {userLocation && <Mapbox.UserLocation visible={true} />}
 
         {/* Clinic Markers using MarkerView (renders actual React components) */}
         {mockClinics.map((clinic) => (
@@ -195,7 +204,7 @@ export default function MapScreen() {
             id={clinic.id}
             coordinate={clinic.coordinates as [number, number]}
           >
-            <TouchableOpacity 
+            <TouchableOpacity
               onPress={() => setSelectedClinic(clinic)}
               className="items-center"
             >
@@ -204,7 +213,7 @@ export default function MapScreen() {
                 <Text className="text-white text-lg font-bold">+</Text>
               </View>
               {/* Small triangle pointer */}
-              <View 
+              <View
                 style={{
                   width: 0,
                   height: 0,
@@ -238,21 +247,21 @@ export default function MapScreen() {
 
       {/* Map Controls */}
       <View className="absolute top-32 right-4 gap-2">
-        <TouchableOpacity 
+        <TouchableOpacity
           className="bg-white w-12 h-12 rounded-lg shadow-lg items-center justify-center border border-gray-200"
           onPress={handleZoomIn}
         >
           <Text className="text-gray-700 text-2xl font-bold">+</Text>
         </TouchableOpacity>
-        
-        <TouchableOpacity 
+
+        <TouchableOpacity
           className="bg-white w-12 h-12 rounded-lg shadow-lg items-center justify-center border border-gray-200"
           onPress={handleZoomOut}
         >
           <Text className="text-gray-700 text-2xl font-bold">−</Text>
         </TouchableOpacity>
-        
-        <TouchableOpacity 
+
+        <TouchableOpacity
           className="bg-white w-12 h-12 rounded-lg shadow-lg items-center justify-center border border-gray-200"
           onPress={handleRecenter}
         >
