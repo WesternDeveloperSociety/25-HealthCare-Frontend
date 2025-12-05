@@ -78,30 +78,6 @@ export default function EditableTable({ rows, onRowsChange, onSortChange, availa
           <Text numberOfLines={1} ellipsizeMode="tail" style={{ textAlign: 'center', minWidth: 90, fontSize: 14 }}>{value ? new Date(value).toLocaleDateString() : 'Select date'}</Text>
         </NativePressable>
 
-        {/* Web modal: show a small overlay with a native date input */}
-        {showModalLocal && Platform.OS === 'web' && (
-          <div style={{ position: 'fixed', left: 0, top: 0, right: 0, bottom: 0, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-            <div style={{ background: '#fff', padding: 16, borderRadius: 8, boxShadow: '0 4px 14px rgba(0,0,0,0.2)' }}>
-              <div style={{ marginBottom: 12 }}>
-                <input
-                  id={`__editable_table_date_${id}`}
-                  type="date"
-                  value={value ? localDate.toISOString().slice(0, 10) : ''}
-                  onChange={(e) => {
-                    const v = e.target.value;
-                    if (v) setLocalDate(new Date(v + 'T00:00:00'));
-                  }}
-                  style={{ padding: 8, borderRadius: 6, border: '1px solid #E5E7EB' }}
-                  autoFocus
-                />
-              </div>
-              <div style={{ display: 'flex', gap: 8, justifyContent: 'flex-end' }}>
-                <button onClick={() => setShowModalLocal(false)} style={{ padding: '8px 12px' }}>Cancel</button>
-                <button onClick={() => { commitLocal(localDate); }} style={{ padding: '8px 12px' }}>OK</button>
-              </div>
-            </div>
-          </div>
-        )}
 
         {/* Native modal picker (iOS/Android): show the JS Calendar inside a Modal */}
         {showModalLocal && Platform.OS !== 'web' && (
