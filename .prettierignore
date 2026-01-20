@@ -1,0 +1,38 @@
+# Dependencies
+node_modules
+package-lock.json
+yarn.lock
+
+# Build outputs
+dist
+build
+.expo
+.expo-shared
+
+# Generated files
+*.log
+*.lock
+
+# OS files
+.DS_Store
+Thumbs.db
+
+# IDE
+.vscode
+.idea
+
+# Assets
+*.png
+*.jpg
+*.jpeg
+*.gif
+*.svg
+*.ico
+*.ttf
+*.woff
+*.woff2
+
+# Config files that shouldn't be formatted
+*.min.js
+*.min.css
+
