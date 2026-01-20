@@ -1,6 +1,6 @@
 import { create } from 'zustand';
-const RNMMKV: any = require('react-native-mmkv')
-const MMKVConstructor = RNMMKV.MMKV ?? RNMMKV.default ?? RNMMKV
+const RNMMKV: any = require('react-native-mmkv');
+const MMKVConstructor = RNMMKV.MMKV ?? RNMMKV.default ?? RNMMKV;
 
 // Removed MMKV storage implementation
 
@@ -16,7 +16,7 @@ export interface User {
 interface UserState {
   user: User | null;
   isAuthenticated: boolean;
-  
+
   setUser: (user: User) => void;
   updateUser: (updates: Partial<User>) => void;
   clearUser: () => void;
@@ -30,7 +30,9 @@ export const useUserStore = create<UserState>((set) => ({
   setUser: (user) => set({ user, isAuthenticated: true }),
 
   updateUser: (updates) =>
-    set((state) => ({ user: state.user ? { ...state.user, ...updates } : null })),
+    set((state) => ({
+      user: state.user ? { ...state.user, ...updates } : null,
+    })),
 
   clearUser: () => set({ user: null, isAuthenticated: false }),
 

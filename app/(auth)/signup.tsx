@@ -1,77 +1,82 @@
 // app/(auth)/signup.tsx
-import React, { useState } from "react";
-import { Box } from "@/components/ui/box";
-import { Input, InputField } from "@/components/ui/input";
-import { Button, ButtonText } from "@/components/ui/button";
-import { Text } from "@/components/ui/text";
-import { useRouter, Link } from "expo-router";
-import { useSignUp } from '@clerk/clerk-expo'
-import { useUserStore } from '@/store/userStore'
+import React, { useState } from 'react';
+import { Box } from '@/components/ui/box';
+import { Input, InputField } from '@/components/ui/input';
+import { Button, ButtonText } from '@/components/ui/button';
+import { Text } from '@/components/ui/text';
+import { useRouter, Link } from 'expo-router';
+import { useSignUp } from '@clerk/clerk-expo';
+import { useUserStore } from '@/store/userStore';
 
 export default function Signup() {
-  const { isLoaded, signUp, setActive } = useSignUp()
-  const router = useRouter()
+  const { isLoaded, signUp, setActive } = useSignUp();
+  const router = useRouter();
 
+  const [emailAddress, setEmailAddress] = React.useState('');
+  const [password, setPassword] = React.useState('');
+  const [pendingVerification, setPendingVerification] = React.useState(false);
+  const [code, setCode] = React.useState('');
 
-  const [emailAddress, setEmailAddress] = React.useState('')
-  const [password, setPassword] = React.useState('')
-  const [pendingVerification, setPendingVerification] = React.useState(false)
-  const [code, setCode] = React.useState('')
-
-  
   const handleSignup = async () => {
-     if (!isLoaded) return
+    if (!isLoaded) return;
 
     // Start sign-up process using email and password provided
     try {
       await signUp.create({
         emailAddress,
         password,
-      })
+      });
       // Send user an email with verification code
-      await signUp.prepareEmailAddressVerification({ strategy: 'email_code' })
+      await signUp.prepareEmailAddressVerification({ strategy: 'email_code' });
 
       // Set 'pendingVerification' to true to display second form
       // and capture OTP code
-      setPendingVerification(true)
+      setPendingVerification(true);
     } catch (err) {
       // See https://clerk.com/docs/custom-flows/error-handling
       // for more info on error handling
-      console.error(JSON.stringify(err, null, 2))
+      console.error(JSON.stringify(err, null, 2));
     }
-    
+
     // // TODO: create account then redirect
     // router.replace("/(auth)/login");
   };
   // Handle submission of verification form
   const handleVerifyPress = async () => {
-    if (!isLoaded) return
+    if (!isLoaded) return;
 
     try {
       // Use the code the user provided to attempt verification
       const signUpAttempt = await signUp.attemptEmailAddressVerification({
         code,
-      })
+      });
 
       // If verification was completed, set the session to active
       // and redirect the user
       if (signUpAttempt.status === 'complete') {
-        await setActive({ session: signUpAttempt.createdSessionId })
-  // TODO: call backend /api/users/me to get full user record (id, role, names)
-  // Use the Zustand store getter so this works outside of React hooks.
-  useUserStore.getState().setUser({ id: '', clerkID: emailAddress, email: emailAddress, role: null })
-        router.replace('/')
+        await setActive({ session: signUpAttempt.createdSessionId });
+        // TODO: call backend /api/users/me to get full user record (id, role, names)
+        // Use the Zustand store getter so this works outside of React hooks.
+        useUserStore
+          .getState()
+          .setUser({
+            id: '',
+            clerkID: emailAddress,
+            email: emailAddress,
+            role: null,
+          });
+        router.replace('/');
       } else {
         // If the status is not complete, check why. User may need to
         // complete further steps.
-        console.error(JSON.stringify(signUpAttempt, null, 2))
+        console.error(JSON.stringify(signUpAttempt, null, 2));
       }
     } catch (err) {
       // See https://clerk.com/docs/custom-flows/error-handling
       // for more info on error handling
-      console.error(JSON.stringify(err, null, 2))
+      console.error(JSON.stringify(err, null, 2));
     }
-  }
+  };
 
   if (pendingVerification) {
     return (
@@ -86,7 +91,7 @@ export default function Signup() {
           <Text>Verify</Text>
         </Button>
       </>
-    )
+    );
   }
   return (
     <Box className="flex-1 justify-center p-6 bg-background-100">
@@ -120,5 +125,5 @@ export default function Signup() {
         </Text>
       </Link>
     </Box>
-  )
+  );
 }
