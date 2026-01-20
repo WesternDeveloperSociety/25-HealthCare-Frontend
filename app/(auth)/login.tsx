@@ -34,7 +34,7 @@ export default function Login() {
       // and redirect the user
       if (signInAttempt.status === 'complete') {
         await setActive({ session: signInAttempt.createdSessionId })
-        router.replace('/(user)/dashboard') // need to give roles later 
+        router.replace('/(protected)/(user)/dashboard') // need to give roles later 
       } else {
         // If the status isn't complete, check why. User might need to
         // complete further steps.
