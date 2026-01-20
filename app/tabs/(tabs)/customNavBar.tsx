@@ -8,8 +8,9 @@ import {
   SquareActivity,
   HeartPlus,
   Calendar,
-  List,
+  UserRound,
 } from 'lucide-react-native';
+import { Pressable } from '@/components/ui/pressable';
 
 export default function CustomNavBar() {
   const pathname = usePathname();
@@ -22,7 +23,7 @@ export default function CustomNavBar() {
     { name: 'services', icon: SquareActivity },
     { name: 'home', icon: HeartPlus },
     { name: 'visits', icon: Calendar },
-    { name: 'profile', icon: List },
+    { name: 'profile', icon: UserRound },
   ];
 
   return (
@@ -33,22 +34,24 @@ export default function CustomNavBar() {
       <HStack className="justify-between items-center">
         {tabs.map((tab) => {
           const Icon = tab.icon;
-          const active = pathname.includes(tab.name);
+          const active = pathname === `/tabs/${tab.name}`;
 
           return (
-            <Center
+            <Pressable
               key={tab.name}
               className="flex-1"
-              onTouchStart={() => router.push(`/tabs/${tab.name}` as any)}
+              onPress={() => router.push(`/tabs/${tab.name}` as any)}
             >
-              <Icon size={24} color={active ? '#c1bfbfff' : '#ffffffff'} />
-              {/* Optional label */}
-              <Text
-                className={`mt-1 text-xs ${active ? 'text-gray-300' : 'text-white'}`}
-              >
-                {tab.name}
-              </Text>
-            </Center>
+              <Center>
+                <Icon size={24} color={active ? '#c1bfbfff' : '#ffffffff'} />
+                {/* Optional label */}
+                <Text
+                  className={`mt-1 text-xs ${active ? 'text-gray-300' : 'text-white'}`}
+                >
+                  {tab.name}
+                </Text>
+              </Center>
+            </Pressable>
           );
         })}
       </HStack>

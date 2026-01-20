@@ -6,11 +6,11 @@ import { Text } from '@/components/ui/text';
 
 export default function Upload() {
   return (
-    <Center className="flex-1">
+    <Center className="flex-1 pb-32">
       <Heading className="font-bold text-2xl">Upload</Heading>
       <Divider className="my-[30px] w-[80%]" />
       <Text className="p-4">Example below to use gluestack-ui components.</Text>
-      <EditScreenInfo path="app/(app)/(tabs)/upload.tsx" />
+      <EditScreenInfo path="app/tabs/(tabs)/upload.tsx" />
     </Center>
   );
 }
