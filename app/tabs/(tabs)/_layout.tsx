@@ -33,6 +33,13 @@ export default function TabLayout() {
           tabBarIcon: ({ color }) => <TabBarIcon name="star-o" color={color} />,
         }}
       />
+      <Tabs.Screen
+        name="TestPopup"
+        options={{
+          title: 'Calendar',
+          tabBarIcon: ({ color }) => <TabBarIcon name="calendar" color={color} />,
+        }}
+      />
     </Tabs>
   );
 }
