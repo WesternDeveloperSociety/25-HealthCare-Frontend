@@ -13,12 +13,16 @@ export const DocumentUploadExample: React.FC = () => {
     type: string;
   } | null>(null);
 
-  const handleFileSelected = (file: { uri: string; name: string; type: string }) => {
+  const handleFileSelected = (file: {
+    uri: string;
+    name: string;
+    type: string;
+  }) => {
     setSelectedFile(file);
-    
+
     // Here you would typically upload the file to your backend
     console.log('Selected file:', file);
-    
+
     // TODO: Call your upload mutation here
     // uploadMutation.mutate(formData);
   };
@@ -33,7 +37,6 @@ export const DocumentUploadExample: React.FC = () => {
 
   return (
     <VStack space="md" className="p-4">
-      
       <Button onPress={openUploadModal}>
         <ButtonText>Upload Document</ButtonText>
       </Button>
@@ -41,9 +44,15 @@ export const DocumentUploadExample: React.FC = () => {
       {selectedFile && (
         <VStack space="sm" className="p-3 bg-background-50 rounded-md">
           <Text className="font-medium">Selected File:</Text>
-          <Text className="text-sm text-typography-600">Name: {selectedFile.name}</Text>
-          <Text className="text-sm text-typography-600">Type: {selectedFile.type}</Text>
-          <Text className="text-sm text-typography-600">URI: {selectedFile.uri}</Text>
+          <Text className="text-sm text-typography-600">
+            Name: {selectedFile.name}
+          </Text>
+          <Text className="text-sm text-typography-600">
+            Type: {selectedFile.type}
+          </Text>
+          <Text className="text-sm text-typography-600">
+            URI: {selectedFile.uri}
+          </Text>
         </VStack>
       )}
 

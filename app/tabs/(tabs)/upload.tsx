@@ -9,8 +9,10 @@ export default function Upload() {
     <Center className="flex-1 pb-32">
       <Heading className="font-bold text-2xl">Upload</Heading>
       <Divider className="my-[30px] w-[80%]" />
-      <Text className="p-4">Upload your documents using the component below.</Text>
-      
+      <Text className="p-4">
+        Upload your documents using the component below.
+      </Text>
+
       {/* Document Upload Component */}
       <DocumentUploadExample />
     </Center>
