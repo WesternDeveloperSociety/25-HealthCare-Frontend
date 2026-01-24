@@ -17,14 +17,17 @@ export function useUploadDocument() {
         type: file.type,
       } as any);
 
-      const res = await fetch(`${process.env.EXPO_PUBLIC_API_URL || ''}/documents`, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'multipart/form-data',
-          // Add auth headers if needed
-        },
-        body: formData,
-      });
+      const res = await fetch(
+        `${process.env.EXPO_PUBLIC_API_URL || ''}/documents`,
+        {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'multipart/form-data',
+            // Add auth headers if needed
+          },
+          body: formData,
+        }
+      );
 
       if (!res.ok) throw new Error('Upload failed');
       return res.json();
