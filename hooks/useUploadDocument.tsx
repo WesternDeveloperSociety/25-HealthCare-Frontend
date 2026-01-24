@@ -28,7 +28,7 @@ export function useUploadDocument() {
       if (file.title) formData.append('title', file.title);
       if (file.docType) formData.append('docType', file.docType);
 
-      const response = await fetch(`${process.env.API_URL}/documents`, {
+      const response = await fetch(`${process.env.API_URL}/api/documents`, {
         method: 'POST',
         body: formData,
         headers: {
