@@ -9,6 +9,7 @@ import {
   HeartPlus,
   Calendar,
   UserRound,
+  Pill,
 } from 'lucide-react-native';
 import { Pressable } from '@/components/ui/pressable';
 
@@ -16,13 +17,14 @@ export default function CustomNavBar() {
   const pathname = usePathname();
 
   const tabs: Array<{
-    name: 'upload' | 'services' | 'home' | 'visits' | 'profile';
+    name: 'upload' | 'services' | 'home' | 'visits' | 'profile' | 'medications';
     icon: any;
   }> = [
     { name: 'upload', icon: Upload },
     { name: 'services', icon: SquareActivity },
     { name: 'home', icon: HeartPlus },
     { name: 'visits', icon: Calendar },
+    { name: 'medications', icon: Pill },
     { name: 'profile', icon: UserRound },
   ];
 

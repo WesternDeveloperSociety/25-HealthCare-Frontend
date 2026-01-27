@@ -5,6 +5,7 @@ import {
   HeartPlus,
   Calendar,
   UserRound,
+  Pill,
 } from 'lucide-react-native';
 import { Tabs } from 'expo-router';
 import { useClientOnlyValue } from '@/components/useClientOnlyValue';
@@ -67,6 +68,15 @@ export default function TabLayout() {
             title: 'Profile',
             tabBarIcon: ({ color }) => (
               <TabBarIcon color={color} Icon={UserRound} />
+            ),
+          }}
+        />
+        <Tabs.Screen
+          name="medications"
+          options={{
+            title: 'Medications',
+            tabBarIcon: ({ color }) => (
+              <TabBarIcon color={color} Icon={Pill} />
             ),
           }}
         />
