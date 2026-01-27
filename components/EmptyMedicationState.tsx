@@ -14,7 +14,9 @@ interface EmptyMedicationStateProps {
   onAddPress: () => void;
 }
 
-export default function EmptyMedicationState({ onAddPress }: EmptyMedicationStateProps) {
+export default function EmptyMedicationState({
+  onAddPress,
+}: EmptyMedicationStateProps) {
   return (
     <Center className="flex-1 pb-32 px-6">
       {/* Icon/Illustration */}
@@ -29,18 +31,17 @@ export default function EmptyMedicationState({ onAddPress }: EmptyMedicationStat
 
       {/* Description */}
       <Text className="text-center mb-8 max-w-sm text-gray-600 dark:text-gray-400">
-        Start tracking your prescriptions to get refill reminders and never miss a dose
+        Start tracking your prescriptions to get refill reminders and never miss
+        a dose
       </Text>
 
       {/* Add Button */}
-      <TouchableOpacity 
+      <TouchableOpacity
         onPress={onAddPress}
         className="bg-blue-600 px-8 py-4 rounded-xl shadow-sm"
         activeOpacity={0.8}
       >
-        <Text className="text-white font-semibold">
-          Add Prescription
-        </Text>
+        <Text className="text-white font-semibold">Add Prescription</Text>
       </TouchableOpacity>
     </Center>
   );

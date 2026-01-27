@@ -8,7 +8,7 @@ import {
   Alert,
   RefreshControl,
   Platform,
-  useColorScheme
+  useColorScheme,
 } from 'react-native';
 import { View } from '@/components/ui/view';
 import { Text } from '@/components/ui/text';
@@ -120,10 +120,11 @@ export default function MedicationTracker() {
           <VStack>
             <Heading size="xl">My Medications</Heading>
             <Text size="sm" className="mt-1">
-              {medications.length} active prescription{medications.length !== 1 ? 's' : ''}
+              {medications.length} active prescription
+              {medications.length !== 1 ? 's' : ''}
             </Text>
           </VStack>
-          <TouchableOpacity 
+          <TouchableOpacity
             onPress={handleAddPrescription}
             className="bg-blue-600 w-12 h-12 rounded-full items-center justify-center shadow-sm"
           >
@@ -146,7 +147,7 @@ export default function MedicationTracker() {
       >
         {/* Notification Status Banner */}
         {!notificationsEnabled && (
-          <TouchableOpacity 
+          <TouchableOpacity
             onPress={setupNotifications}
             className="bg-amber-50 border border-amber-200 rounded-xl p-4 mb-4"
           >

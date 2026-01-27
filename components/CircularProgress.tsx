@@ -20,7 +20,7 @@ export default function CircularProgress({
   strokeWidth = 6,
   color,
   text,
-  textColor = '#1F2937'
+  textColor = '#1F2937',
 }: CircularProgressProps) {
   const radius = (size - strokeWidth) / 2;
   const circumference = radius * 2 * Math.PI;
@@ -53,7 +53,9 @@ export default function CircularProgress({
         />
       </Svg>
       <View style={styles.textContainer}>
-        <Text style={[styles.text, { color: textColor, fontSize: size * 0.18 }]}>
+        <Text
+          style={[styles.text, { color: textColor, fontSize: size * 0.18 }]}
+        >
           {text}
         </Text>
       </View>

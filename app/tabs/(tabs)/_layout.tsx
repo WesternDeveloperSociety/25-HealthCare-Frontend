@@ -75,9 +75,7 @@ export default function TabLayout() {
           name="medications"
           options={{
             title: 'Medications',
-            tabBarIcon: ({ color }) => (
-              <TabBarIcon color={color} Icon={Pill} />
-            ),
+            tabBarIcon: ({ color }) => <TabBarIcon color={color} Icon={Pill} />,
           }}
         />
       </Tabs>

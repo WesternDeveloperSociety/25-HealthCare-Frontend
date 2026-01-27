@@ -10,10 +10,10 @@ import { VStack } from '@/components/ui/vstack';
 import { Box } from '@/components/ui/box';
 import CircularProgress from './CircularProgress';
 import { Medication } from '../data/mockMedications';
-import { 
-  calculateRefillStatus, 
-  calculateProgress, 
-  formatDaysRemaining 
+import {
+  calculateRefillStatus,
+  calculateProgress,
+  formatDaysRemaining,
 } from '../utils/medicationUtils';
 
 interface MedicationCardProps {
@@ -21,12 +21,21 @@ interface MedicationCardProps {
   onPress?: () => void;
 }
 
-export default function MedicationCard({ medication, onPress }: MedicationCardProps) {
-  const refillStatus = calculateRefillStatus(medication.startDate, medication.duration);
-  const progress = calculateProgress(refillStatus.daysRemaining, medication.duration);
+export default function MedicationCard({
+  medication,
+  onPress,
+}: MedicationCardProps) {
+  const refillStatus = calculateRefillStatus(
+    medication.startDate,
+    medication.duration
+  );
+  const progress = calculateProgress(
+    refillStatus.daysRemaining,
+    medication.duration
+  );
 
   return (
-    <TouchableOpacity 
+    <TouchableOpacity
       onPress={onPress}
       className="bg-white dark:bg-gray-800 rounded-2xl p-4 mb-3 shadow-sm border border-gray-100 dark:border-gray-700"
       activeOpacity={0.7}
@@ -34,18 +43,16 @@ export default function MedicationCard({ medication, onPress }: MedicationCardPr
       <HStack className="items-center justify-between">
         {/* Left: Medication Info */}
         <VStack className="flex-1 mr-4">
-          <Text className="text-lg font-bold">
-            {medication.name}
-          </Text>
+          <Text className="text-lg font-bold">{medication.name}</Text>
           <Text size="sm" className="mt-1 text-gray-600 dark:text-gray-400">
             {medication.dosage} • {medication.frequency}
           </Text>
           <Box className="mt-2">
-            <Box 
+            <Box
               className="px-3 py-1 rounded-full self-start"
               style={{ backgroundColor: `${refillStatus.color}15` }}
             >
-              <Text 
+              <Text
                 size="xs"
                 className="font-semibold"
                 style={{ color: refillStatus.color }}

@@ -54,11 +54,16 @@ export async function scheduleMedicationNotification(
   medication: Medication
 ): Promise<string | null> {
   try {
-    const refillStatus = calculateRefillStatus(medication.startDate, medication.duration);
-    
+    const refillStatus = calculateRefillStatus(
+      medication.startDate,
+      medication.duration
+    );
+
     // Only schedule if medication hasn't expired
     if (refillStatus.daysRemaining <= 0) {
-      console.log(`Medication ${medication.name} has expired, not scheduling notification`);
+      console.log(
+        `Medication ${medication.name} has expired, not scheduling notification`
+      );
       return null;
     }
 
@@ -66,14 +71,16 @@ export async function scheduleMedicationNotification(
     const startDate = new Date(medication.startDate);
     const expiryDate = new Date(startDate);
     expiryDate.setDate(expiryDate.getDate() + medication.duration);
-    
+
     const notificationTime = new Date(expiryDate);
     notificationTime.setHours(notificationTime.getHours() - 48); // 48 hours before
 
     // Don't schedule if notification time is in the past
     const now = new Date();
     if (notificationTime <= now) {
-      console.log(`Notification time for ${medication.name} is in the past, skipping`);
+      console.log(
+        `Notification time for ${medication.name} is in the past, skipping`
+      );
       return null;
     }
 
@@ -82,10 +89,10 @@ export async function scheduleMedicationNotification(
       content: {
         title: '💊 Medication Refill Reminder',
         body: `Time to refill ${medication.name} (${medication.dosage}). Only 2 days of supply remaining.`,
-        data: { 
+        data: {
           medicationId: medication.id,
           medicationName: medication.name,
-          type: 'refill-reminder'
+          type: 'refill-reminder',
         },
         sound: true,
         priority: Notifications.AndroidNotificationPriority.HIGH,
@@ -93,10 +100,12 @@ export async function scheduleMedicationNotification(
       trigger: {
         type: Notifications.SchedulableTriggerInputTypes.DATE,
         date: notificationTime,
-      }
+      },
     });
 
-    console.log(`Scheduled notification for ${medication.name} at ${notificationTime.toISOString()}`);
+    console.log(
+      `Scheduled notification for ${medication.name} at ${notificationTime.toISOString()}`
+    );
     return notificationId;
   } catch (error) {
     console.error('Error scheduling notification:', error);
@@ -112,7 +121,7 @@ export async function scheduleAllMedicationNotifications(
   medications: Medication[]
 ): Promise<void> {
   const hasPermission = await requestNotificationPermissions();
-  
+
   if (!hasPermission) {
     console.log('Cannot schedule notifications without permission');
     return;
@@ -123,10 +132,10 @@ export async function scheduleAllMedicationNotifications(
 
   // Schedule new notifications
   const scheduledCount = await Promise.all(
-    medications.map(med => scheduleMedicationNotification(med))
+    medications.map((med) => scheduleMedicationNotification(med))
   );
 
-  const successCount = scheduledCount.filter(id => id !== null).length;
+  const successCount = scheduledCount.filter((id) => id !== null).length;
   console.log(`Scheduled ${successCount} medication notifications`);
 }
 
