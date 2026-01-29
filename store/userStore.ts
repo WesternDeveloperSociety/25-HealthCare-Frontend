@@ -1,6 +1,5 @@
 import { create } from 'zustand';
-const RNMMKV: any = require('react-native-mmkv');
-const MMKVConstructor = RNMMKV.MMKV ?? RNMMKV.default ?? RNMMKV;
+
 
 // Removed MMKV storage implementation
 
