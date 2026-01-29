@@ -74,7 +74,10 @@ export default function ChatRoomScreen() {
   // Notes:
   // - For web this can use a relative `/api` route. For native (Expo) set `API_BASE_URL` to your server.
   // - If your API requires auth, include the Authorization header (e.g. Bearer token).
-  const sendMessageApi = async (payload: { text: string; recipientId: string }) => {
+  const sendMessageApi = async (payload: {
+    text: string;
+    recipientId: string;
+  }) => {
     const API_BASE = (global as any).API_BASE_URL ?? '';
     const url = `${API_BASE}/api/chats/${encodeURIComponent(payload.recipientId)}`;
 
@@ -160,13 +163,24 @@ export default function ChatRoomScreen() {
 
       return { previous: prevSnapshot, tempId };
     },
-    onError: (err: unknown, variables: { text: string; recipientId: string }, context?: { previous: Record<string, ChatItem[]> | undefined; tempId?: string }) => {
+    onError: (
+      err: unknown,
+      variables: { text: string; recipientId: string },
+      context?: {
+        previous: Record<string, ChatItem[]> | undefined;
+        tempId?: string;
+      }
+    ) => {
       // rollback to previous conversations if available
       if (context?.previous) {
         setConversations(context.previous);
       }
     },
-    onSuccess: (data: { id?: string; serverId?: string; time?: string }, variables: { text: string; recipientId: string }, context?: { previous?: Record<string, ChatItem[]>; tempId?: string }) => {
+    onSuccess: (
+      data: { id?: string; serverId?: string; time?: string },
+      variables: { text: string; recipientId: string },
+      context?: { previous?: Record<string, ChatItem[]>; tempId?: string }
+    ) => {
       // Replace the temp message id with the server id (if returned) and optionally update time.
       const serverId = data.id ?? data.serverId;
       const tempId = context?.tempId;
@@ -174,7 +188,9 @@ export default function ChatRoomScreen() {
 
       setConversations((prev) => {
         const conv = prev[variables.recipientId] ?? [];
-        const idx = conv.findIndex((it) => it.kind === 'message' && it.id === tempId);
+        const idx = conv.findIndex(
+          (it) => it.kind === 'message' && it.id === tempId
+        );
         if (idx === -1) return prev;
 
         const updated = [...conv];
@@ -267,7 +283,12 @@ export default function ChatRoomScreen() {
 
         {/* Typing bar (input full-width implemented by ChatInput) */}
         <Box className="absolute left-0 right-0 bottom-0 px-4 py-4 bg-background-0">
-          <ChatInput value={text} onChangeText={setText} onSend={send} sending={sending} />
+          <ChatInput
+            value={text}
+            onChangeText={setText}
+            onSend={send}
+            sending={sending}
+          />
         </Box>
       </KeyboardAvoidingView>
     </Box>
