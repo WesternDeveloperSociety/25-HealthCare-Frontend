@@ -3,7 +3,7 @@ import { Box } from '@/components/ui/box';
 import { Input, InputField, InputSlot } from '@/components/ui/input';
 import { Button, ButtonText } from '@/components/ui/button';
 import { Text } from '@/components/ui/text';
-import { useRouter, Link } from 'expo-router';
+import { useRouter, Link, Redirect } from 'expo-router';
 import { Pressable } from 'react-native';
 import {
   Checkbox,
@@ -15,9 +15,16 @@ import { Divider } from '@/components/ui/divider';
 import { CheckIcon } from '@/components/ui/icon';
 import { useSignIn } from '@clerk/clerk-expo';
 
+import { useAuth } from '@clerk/clerk-expo';
+
 export default function Login() {
   const { signIn, setActive, isLoaded } = useSignIn();
+  const { isSignedIn } = useAuth();
   const router = useRouter();
+
+  if (isSignedIn) {
+    return <Redirect href="/(protected)/(user)/dashboard" />;
+  }
 
   const [emailAddress, setEmailAddress] = React.useState('');
   const [password, setPassword] = React.useState('');
@@ -44,10 +51,13 @@ export default function Login() {
         // complete further steps.
         console.error(JSON.stringify(signInAttempt, null, 2));
       }
-    } catch (err) {
+    } catch (err: any) {
       // See https://clerk.com/docs/custom-flows/error-handling
       // for more info on error handling
-      console.error(JSON.stringify(err, null, 2));
+      console.error(err);
+
+      const errorMessage = err.errors?.[0]?.message || err.message || "An unknown error occurred";
+      alert(errorMessage);
     }
   };
 

@@ -7,9 +7,8 @@ export default function AuthRoutesLayout() {
   if (!isLoaded) return null; // Loading state
 
   // If user already signed in, redirect to role selection or dashboard
-  if (isSignedIn) {
-    return <Redirect href="/(auth)/role-selection" />;
-  }
+  // Redirect logic Removed to prevent infinite loop
+  // Individual pages (login/signup) will handle redirects if needed
 
   // Hide header for all auth screens
   return <Stack screenOptions={{ headerShown: false }} />;
