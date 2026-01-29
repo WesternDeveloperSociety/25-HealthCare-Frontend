@@ -1,13 +1,13 @@
 import React, { useRef, useState } from 'react';
 import { useLocalSearchParams } from 'expo-router';
 import { ScrollView, KeyboardAvoidingView, Platform } from 'react-native';
+import { useMutation } from '@tanstack/react-query';
 import { Box } from '@/components/ui/box';
 import { Heading } from '@/components/ui/heading';
 import { Text } from '@/components/ui/text';
 import { Avatar, AvatarFallbackText } from '@/components/ui/avatar';
-import { Input, InputField } from '@/components/ui/input';
-import { Fab, FabIcon } from '@/components/ui/fab';
-import { MailIcon } from '@/components/ui/icon';
+// chat input replaced by `ChatInput` component
+import ChatInput from '@/components/ChatInput';
 
 type MessageItem = {
   id: string;
@@ -70,54 +70,131 @@ export default function ChatRoomScreen() {
   // No separate date header state needed — date separators are embedded in `conversations`.
   const scrollRef = useRef<ScrollView | null>(null);
 
-  const send = () => {
-    if (!text.trim()) return;
+  // Real API call to send a message.
+  // Notes:
+  // - For web this can use a relative `/api` route. For native (Expo) set `API_BASE_URL` to your server.
+  // - If your API requires auth, include the Authorization header (e.g. Bearer token).
+  const sendMessageApi = async (payload: { text: string; recipientId: string }) => {
+    const API_BASE = (global as any).API_BASE_URL ?? '';
+    const url = `${API_BASE}/api/chats/${encodeURIComponent(payload.recipientId)}`;
 
-    setConversations((prev) => {
-      const prevFor = prev[rid] ?? [];
-
-      const todayISO = new Date().toISOString().slice(0, 10);
-      const todayLabel = new Date().toLocaleDateString([], {
-        month: 'long',
-        day: 'numeric',
-      });
-
-      // Determine the last item's date (if any)
-      const last = prevFor[prevFor.length - 1];
-      const lastDate = last?.date ?? null;
-
-      const itemsToAppend: ChatItem[] = [];
-
-      // If the last date differs from today, insert a date separator before the new message.
-      if (lastDate !== todayISO) {
-        itemsToAppend.push({
-          id: `d-${Date.now()}`,
-          kind: 'date',
-          label: todayLabel,
-          date: todayISO,
-        });
-      }
-
-      const messageItem: MessageItem = {
-        id: String(Date.now()),
-        kind: 'message',
-        text: text.trim(),
-        time: new Date().toLocaleTimeString([], {
-          hour: '2-digit',
-          minute: '2-digit',
-        }),
-        fromMe: true,
-        date: todayISO,
-      };
-
-      itemsToAppend.push(messageItem);
-
-      return { ...prev, [rid]: [...prevFor, ...itemsToAppend] };
+    const res = await fetch(url, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        // 'Authorization': `Bearer ${token}` // add if needed
+      },
+      body: JSON.stringify({ text: payload.text }),
     });
 
-    setText('');
-    setTimeout(() => scrollRef.current?.scrollToEnd({ animated: true }), 50);
+    if (!res.ok) {
+      const body = await res.text();
+      throw new Error(`Send message failed: ${res.status} ${body}`);
+    }
+
+    // Expect backend to return at least { id: string, time?: string }
+    const data = await res.json();
+    return data as { id?: string; serverId?: string; time?: string };
   };
+
+  const mutation = useMutation<
+    { id?: string; serverId?: string; time?: string },
+    unknown,
+    { text: string; recipientId: string },
+    { previous: Record<string, ChatItem[]>; tempId?: string }
+  >({
+    mutationFn: sendMessageApi,
+    // optimistic update
+    onMutate: async (variables: { text: string; recipientId: string }) => {
+      const { text: newText } = variables;
+      if (!newText.trim()) return { previous: conversations };
+
+      const prevSnapshot = { ...conversations };
+
+      const tempId = `temp-${Date.now()}`;
+
+      setConversations((prev) => {
+        const prevFor = prev[rid] ?? [];
+
+        const todayISO = new Date().toISOString().slice(0, 10);
+        const todayLabel = new Date().toLocaleDateString([], {
+          month: 'long',
+          day: 'numeric',
+        });
+
+        const last = prevFor[prevFor.length - 1];
+        const lastDate = last?.date ?? null;
+
+        const itemsToAppend: ChatItem[] = [];
+
+        if (lastDate !== todayISO) {
+          itemsToAppend.push({
+            id: `d-${Date.now()}`,
+            kind: 'date',
+            label: todayLabel,
+            date: todayISO,
+          });
+        }
+        const messageItem: MessageItem = {
+          id: tempId,
+          kind: 'message',
+          text: newText.trim(),
+          time: new Date().toLocaleTimeString([], {
+            hour: '2-digit',
+            minute: '2-digit',
+          }),
+          fromMe: true,
+          date: todayISO,
+        };
+
+        itemsToAppend.push(messageItem);
+
+        // optimistic append
+        return { ...prev, [rid]: [...prevFor, ...itemsToAppend] };
+      });
+
+      // clear local input immediately for optimistic UX
+      setText('');
+
+      setTimeout(() => scrollRef.current?.scrollToEnd({ animated: true }), 50);
+
+      return { previous: prevSnapshot, tempId };
+    },
+    onError: (err: unknown, variables: { text: string; recipientId: string }, context?: { previous: Record<string, ChatItem[]> | undefined; tempId?: string }) => {
+      // rollback to previous conversations if available
+      if (context?.previous) {
+        setConversations(context.previous);
+      }
+    },
+    onSuccess: (data: { id?: string; serverId?: string; time?: string }, variables: { text: string; recipientId: string }, context?: { previous?: Record<string, ChatItem[]>; tempId?: string }) => {
+      // Replace the temp message id with the server id (if returned) and optionally update time.
+      const serverId = data.id ?? data.serverId;
+      const tempId = context?.tempId;
+      if (!serverId || !tempId) return;
+
+      setConversations((prev) => {
+        const conv = prev[variables.recipientId] ?? [];
+        const idx = conv.findIndex((it) => it.kind === 'message' && it.id === tempId);
+        if (idx === -1) return prev;
+
+        const updated = [...conv];
+        const item = updated[idx] as MessageItem;
+        updated[idx] = { ...item, id: serverId, time: data.time ?? item.time };
+
+        return { ...prev, [variables.recipientId]: updated };
+      });
+    },
+  });
+
+  const send = (messageText?: string) => {
+    const toSend = messageText ?? text;
+    if (!toSend?.trim()) return;
+    mutation.mutate({ text: toSend, recipientId: rid });
+  };
+
+  // `useMutation` types in this project don't expose `isLoading` on the result
+  // (different react-query typing). Use a small cast to read it for UI state.
+  const sending = Boolean((mutation as any).isLoading);
 
   return (
     <Box className="flex-1 bg-background-0">
@@ -188,31 +265,9 @@ export default function ChatRoomScreen() {
           })}
         </ScrollView>
 
-        {/* Typing bar (input full-width; FAB overlaps right) */}
+        {/* Typing bar (input full-width implemented by ChatInput) */}
         <Box className="absolute left-0 right-0 bottom-0 px-4 py-4 bg-background-0">
-          <Box className="relative">
-            <Input
-              size="xl"
-              className="rounded-full w-full bg-background-50"
-              variant="rounded"
-            >
-              <InputField
-                placeholder="Send a message..."
-                value={text}
-                onChangeText={setText}
-                className="py-2 pr-20"
-              />
-            </Input>
-
-            <Fab
-              onPress={send}
-              size="sm"
-              // absolute overlap so it sits partly on the input; adjust top to center with taller input
-              style={{ position: 'absolute', right: 16, top: 12 }}
-            >
-              <FabIcon as={MailIcon} className="text-white" />
-            </Fab>
-          </Box>
+          <ChatInput value={text} onChangeText={setText} onSend={send} sending={sending} />
         </Box>
       </KeyboardAvoidingView>
     </Box>
