@@ -1,17 +1,17 @@
 "use client";
 import React, { useCallback, useMemo, useState } from "react";
-import { FlatList } from "./ui/flat-list";
-import { View } from "./ui/view";
-import { Text } from "./ui/text";
-import { Pressable } from "./ui/pressable";
-import { Input, InputField } from "./ui/input";
+import { FlatList } from "@/components/ui/flat-list";
+import { View } from "@/components/ui/view";
+import { Text } from "@/components/ui/text";
+import { Pressable } from "@/components/ui/pressable";
+import { Input, InputField } from "@/components/ui/input";
 // DatePicker is dynamically imported on native platforms to avoid web render errors
 import { Platform, StyleSheet, Modal, TouchableOpacity } from 'react-native';
 import { Calendar } from 'react-native-calendars';
-import { Button, ButtonText } from './ui/button';
+import { Button, ButtonText } from '@/components/ui/button';
 import FilterPanel from './FilterPanel';
 
-type Row = { id: string; name: string; tags: string[]; date?: string; [k: string]: any };
+type Row = { id: string; name: string; tags: string[]; date?: string;[k: string]: any };
 
 type Props = {
   rows: Row[];
@@ -66,7 +66,7 @@ export default function EditableTable({ rows, onRowsChange, onSortChange, availa
       setShowModalLocal(false);
     };
 
-      const NativePressable: any = Platform.OS === 'web' ? Pressable : TouchableOpacity;
+    const NativePressable: any = Platform.OS === 'web' ? Pressable : TouchableOpacity;
 
     return (
       <View style={{ padding: 0, width: '100%' }}>
@@ -158,19 +158,19 @@ export default function EditableTable({ rows, onRowsChange, onSortChange, availa
       const NativePressable: any = Platform.OS === 'web' ? Pressable : TouchableOpacity;
 
       return (
-      <View style={{ flex: 1, padding: 0 }}>
-        <NativePressable
-          onPress={open}
-          activeOpacity={0.8}
-          style={{ paddingVertical: 6, paddingHorizontal: 8, borderWidth: 1, borderColor: value && value.length ? '#BFDBFE' : '#E5E7EB', borderRadius: 8, backgroundColor: value && value.length ? '#EFF6FF' : '#FFFFFF', minHeight: 36, justifyContent: 'center' }}
-        >
-          <Text numberOfLines={1} ellipsizeMode="tail" style={{ color: value && value.length ? '#0B3D91' : '#0F172A', fontSize: 14 }}>{value && value.length ? value.join(', ') : 'Select tags'}</Text>
-        </NativePressable>
+        <View style={{ flex: 1, padding: 0 }}>
+          <NativePressable
+            onPress={open}
+            activeOpacity={0.8}
+            style={{ paddingVertical: 6, paddingHorizontal: 8, borderWidth: 1, borderColor: value && value.length ? '#BFDBFE' : '#E5E7EB', borderRadius: 8, backgroundColor: value && value.length ? '#EFF6FF' : '#FFFFFF', minHeight: 36, justifyContent: 'center' }}
+          >
+            <Text numberOfLines={1} ellipsizeMode="tail" style={{ color: value && value.length ? '#0B3D91' : '#0F172A', fontSize: 14 }}>{value && value.length ? value.join(', ') : 'Select tags'}</Text>
+          </NativePressable>
 
           {/* Web overlay */}
           {showModalLocal && Platform.OS === 'web' && (
             <div style={{ position: 'fixed', left: 0, top: 0, right: 0, bottom: 0, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-                <div style={{ background: '#fff', padding: 20, borderRadius: 12, boxShadow: '0 8px 30px rgba(16,24,40,0.08)', minWidth: 360 }}>
+              <div style={{ background: '#fff', padding: 20, borderRadius: 12, boxShadow: '0 8px 30px rgba(16,24,40,0.08)', minWidth: 360 }}>
                 <div style={{ marginBottom: 12 }}>
                   <FilterPanel tags={available} value={localValue} onChange={({ tags }) => setLocalValue(tags)} />
                 </div>

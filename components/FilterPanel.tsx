@@ -1,8 +1,8 @@
 "use client";
 import React from "react";
-import { View } from "./ui/view";
-import { Text } from "./ui/text";
-import { Pressable } from "./ui/pressable";
+import { View } from "@/components/ui/view";
+import { Text } from "@/components/ui/text";
+import { Pressable } from "@/components/ui/pressable";
 
 type Props = {
   tags: string[];

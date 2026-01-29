@@ -1,3 +1,7 @@
+// Global Providers Only - Keep it simple!
+
+import { ClerkProvider } from '@clerk/clerk-expo';
+import { tokenCache } from '@clerk/clerk-expo/token-cache';
 import { GluestackUIProvider } from '@/components/ui/gluestack-ui-provider';
 import '@/global.css';
 import FontAwesome from '@expo/vector-icons/FontAwesome';
@@ -9,9 +13,7 @@ import {
 import { useFonts } from 'expo-font';
 import * as SplashScreen from 'expo-splash-screen';
 import { useEffect, useState } from 'react';
-import { useColorScheme } from '@/components/useColorScheme';
 import { Slot, usePathname } from 'expo-router';
-import { StatusBar } from 'expo-status-bar';
 import { Fab, FabIcon } from '@/components/ui/fab';
 import { MoonIcon, SunIcon } from '@/components/ui/icon';
 
@@ -28,8 +30,9 @@ export default function RootLayout() {
     ...FontAwesome.font,
   });
 
-  const [styleLoaded, setStyleLoaded] = useState(false);
-  // Expo Router uses Error Boundaries to catch errors in the navigation tree.
+  const [colorMode, setColorMode] = useState<'light' | 'dark'>('light');
+  const pathname = usePathname();
+
   useEffect(() => {
     if (error) throw error;
   }, [error]);
@@ -39,29 +42,32 @@ export default function RootLayout() {
       SplashScreen.hideAsync();
     }
   }, [loaded]);
-  return <RootLayoutNav />;
-}
 
-function RootLayoutNav() {
-  const pathname = usePathname();
-  const [colorMode, setColorMode] = useState<'light' | 'dark'>('light');
+  if (!loaded) {
+    return null;
+  }
 
   return (
-    <GluestackUIProvider mode={colorMode}>
-      <ThemeProvider value={colorMode === 'dark' ? DarkTheme : DefaultTheme}>
-        <Slot />
-        {pathname === '/' && (
-          <Fab
-            onPress={() =>
-              setColorMode(colorMode === 'dark' ? 'light' : 'dark')
-            }
-            className="m-6"
-            size="lg"
-          >
-            <FabIcon as={colorMode === 'dark' ? MoonIcon : SunIcon} />
-          </Fab>
-        )}
-      </ThemeProvider>
-    </GluestackUIProvider>
+    <ClerkProvider
+      publishableKey={process.env.EXPO_PUBLIC_CLERK_PUBLISHABLE_KEY}
+      tokenCache={tokenCache}
+    >
+      <GluestackUIProvider mode={colorMode}>
+        <ThemeProvider value={colorMode === 'dark' ? DarkTheme : DefaultTheme}>
+          <Slot />
+          {pathname === '/' && (
+            <Fab
+              onPress={() =>
+                setColorMode(colorMode === 'dark' ? 'light' : 'dark')
+              }
+              className="m-6"
+              size="lg"
+            >
+              <FabIcon as={colorMode === 'dark' ? MoonIcon : SunIcon} />
+            </Fab>
+          )}
+        </ThemeProvider>
+      </GluestackUIProvider>
+    </ClerkProvider>
   );
 }

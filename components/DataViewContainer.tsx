@@ -1,12 +1,12 @@
 "use client";
 import React, { useCallback, useEffect, useMemo, useState } from "react";
-import { View } from "./ui/view";
-import { Text } from "./ui/text";
-import { Button, ButtonText } from "./ui/button";
+import { View } from "@/components/ui/view";
+import { Text } from "@/components/ui/text";
+import { Button, ButtonText } from "@/components/ui/button";
 import FilterPanel from "./FilterPanel";
 import EditableTable from "./EditableTable";
 
-type Row = { id: string; name: string; tags: string[]; [k: string]: any };
+type Row = { id: string; name: string; tags: string[];[k: string]: any };
 type FilterConfig = { tags: string[] };
 
 const sampleRows: Row[] = [
