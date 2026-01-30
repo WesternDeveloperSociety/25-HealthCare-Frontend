@@ -1,58 +1,75 @@
-"use client";
-import React, { useCallback, useMemo, useState } from "react";
-import { FlatList } from "@/components/ui/flat-list";
-import { View } from "@/components/ui/view";
-import { Text } from "@/components/ui/text";
-import { Pressable } from "@/components/ui/pressable";
-import { Input, InputField } from "@/components/ui/input";
+'use client';
+import React, { useCallback, useMemo, useState } from 'react';
+import { FlatList } from '@/components/ui/flat-list';
+import { View } from '@/components/ui/view';
+import { Text } from '@/components/ui/text';
+import { Pressable } from '@/components/ui/pressable';
+import { Input, InputField } from '@/components/ui/input';
 // DatePicker is dynamically imported on native platforms to avoid web render errors
 import { Platform, StyleSheet, Modal, TouchableOpacity } from 'react-native';
 import { Calendar } from 'react-native-calendars';
 import { Button, ButtonText } from '@/components/ui/button';
 import FilterPanel from './FilterPanel';
 
-type Row = { id: string; name: string; tags: string[]; date?: string;[k: string]: any };
+type Row = {
+  id: string;
+  name: string;
+  tags: string[];
+  date?: string;
+  [k: string]: any;
+};
 
 type Props = {
   rows: Row[];
   onRowsChange: (next: Row[]) => void;
-  onSortChange?: (key: string, direction: "asc" | "desc") => void;
+  onSortChange?: (key: string, direction: 'asc' | 'desc') => void;
   availableTags?: string[];
 };
 
-
-export default function EditableTable({ rows, onRowsChange, onSortChange, availableTags }: Props) {
+export default function EditableTable({
+  rows,
+  onRowsChange,
+  onSortChange,
+  availableTags,
+}: Props) {
   const [localRows, setLocalRows] = useState<Row[]>(rows || []);
 
   React.useEffect(() => setLocalRows(rows || []), [rows]);
 
   const updateCell = useCallback(
     (id: string, key: string, value: any) => {
-      const next = localRows.map((r) => (r.id === id ? { ...r, [key]: value } : r));
+      const next = localRows.map((r) =>
+        r.id === id ? { ...r, [key]: value } : r
+      );
       setLocalRows(next);
       onRowsChange(next);
     },
     [localRows, onRowsChange]
   );
 
-  const onNameChange = (id: string, v: string) => updateCell(id, "name", v);
+  const onNameChange = (id: string, v: string) => updateCell(id, 'name', v);
   const onTagsChange = (id: string, raw: string) => {
     const parsed = raw
-      .split(",")
+      .split(',')
       .map((s) => s.trim())
       .filter(Boolean);
-    updateCell(id, "tags", parsed);
+    updateCell(id, 'tags', parsed);
   };
 
   const [sortKey, setSortKey] = useState<string | null>(null);
-  const [sortDir, setSortDir] = useState<"asc" | "desc">("asc");
+  const [sortDir, setSortDir] = useState<'asc' | 'desc'>('asc');
 
   // DateCell: clickable date display that opens an editor appropriate for the platform
   const DateCell = ({ id, value }: { id: string; value?: string }) => {
-    const [localDate, setLocalDate] = useState<Date>(value ? new Date(value) : new Date());
+    const [localDate, setLocalDate] = useState<Date>(
+      value ? new Date(value) : new Date()
+    );
     const [showModalLocal, setShowModalLocal] = useState(false);
 
-    React.useEffect(() => setLocalDate(value ? new Date(value) : new Date()), [value]);
+    React.useEffect(
+      () => setLocalDate(value ? new Date(value) : new Date()),
+      [value]
+    );
 
     // Use react-native-calendars (JS-only) for a cross-platform calendar UI (no native modules required).
 
@@ -66,22 +83,42 @@ export default function EditableTable({ rows, onRowsChange, onSortChange, availa
       setShowModalLocal(false);
     };
 
-    const NativePressable: any = Platform.OS === 'web' ? Pressable : TouchableOpacity;
+    const NativePressable: any =
+      Platform.OS === 'web' ? Pressable : TouchableOpacity;
 
     return (
       <View style={{ padding: 0, width: '100%' }}>
         <NativePressable
           onPress={open}
           activeOpacity={0.7}
-          style={{ paddingVertical: 6, paddingHorizontal: 8, borderWidth: 1, borderColor: '#E5E7EB', borderRadius: 6, minWidth: 100, justifyContent: 'center', backgroundColor: '#FFFFFF' }}
+          style={{
+            paddingVertical: 6,
+            paddingHorizontal: 8,
+            borderWidth: 1,
+            borderColor: '#E5E7EB',
+            borderRadius: 6,
+            minWidth: 100,
+            justifyContent: 'center',
+            backgroundColor: '#FFFFFF',
+          }}
         >
-          <Text numberOfLines={1} ellipsizeMode="tail" style={{ textAlign: 'center', minWidth: 90, fontSize: 14 }}>{value ? new Date(value).toLocaleDateString() : 'Select date'}</Text>
+          <Text
+            numberOfLines={1}
+            ellipsizeMode="tail"
+            style={{ textAlign: 'center', minWidth: 90, fontSize: 14 }}
+          >
+            {value ? new Date(value).toLocaleDateString() : 'Select date'}
+          </Text>
         </NativePressable>
-
 
         {/* Native modal picker (iOS/Android): show the JS Calendar inside a Modal */}
         {showModalLocal && Platform.OS !== 'web' && (
-          <Modal transparent animationType="fade" visible={!!showModalLocal} onRequestClose={() => setShowModalLocal(false)}>
+          <Modal
+            transparent
+            animationType="fade"
+            visible={!!showModalLocal}
+            onRequestClose={() => setShowModalLocal(false)}
+          >
             <View style={styles.modalOverlay}>
               <View style={styles.modalContent}>
                 <View style={{ marginBottom: 12 }}>
@@ -92,15 +129,31 @@ export default function EditableTable({ rows, onRowsChange, onSortChange, availa
                       setLocalDate(d);
                     }}
                     markedDates={{
-                      [localDate.toISOString().slice(0, 10)]: { selected: true, selectedColor: '#2563EB' },
+                      [localDate.toISOString().slice(0, 10)]: {
+                        selected: true,
+                        selectedColor: '#2563EB',
+                      },
                     }}
                   />
                 </View>
-                <View style={{ flexDirection: 'row', justifyContent: 'flex-end', gap: 8 }}>
-                  <Button onPress={() => setShowModalLocal(false)} style={{ marginRight: 8 }}>
+                <View
+                  style={{
+                    flexDirection: 'row',
+                    justifyContent: 'flex-end',
+                    gap: 8,
+                  }}
+                >
+                  <Button
+                    onPress={() => setShowModalLocal(false)}
+                    style={{ marginRight: 8 }}
+                  >
                     <ButtonText>Cancel</ButtonText>
                   </Button>
-                  <Button onPress={() => { commitLocal(localDate); }}>
+                  <Button
+                    onPress={() => {
+                      commitLocal(localDate);
+                    }}
+                  >
                     <ButtonText>OK</ButtonText>
                   </Button>
                 </View>
@@ -119,18 +172,20 @@ export default function EditableTable({ rows, onRowsChange, onSortChange, availa
       const A = a[sortKey];
       const B = b[sortKey];
       if (Array.isArray(A) && Array.isArray(B)) {
-        const sa = A.join(",");
-        const sb = B.join(",");
-        return sortDir === "asc" ? sa.localeCompare(sb) : sb.localeCompare(sa);
+        const sa = A.join(',');
+        const sb = B.join(',');
+        return sortDir === 'asc' ? sa.localeCompare(sb) : sb.localeCompare(sa);
       }
-      return sortDir === "asc" ? String(A).localeCompare(String(B)) : String(B).localeCompare(String(A));
+      return sortDir === 'asc'
+        ? String(A).localeCompare(String(B))
+        : String(B).localeCompare(String(A));
     });
     return copy;
   }, [localRows, sortKey, sortDir]);
 
   const handleHeaderClick = (key: string) => {
-    let nextDir: "asc" | "desc" = "asc";
-    if (sortKey === key) nextDir = sortDir === "asc" ? "desc" : "asc";
+    let nextDir: 'asc' | 'desc' = 'asc';
+    if (sortKey === key) nextDir = sortDir === 'asc' ? 'desc' : 'asc';
     setSortKey(key);
     setSortDir(nextDir);
     if (onSortChange) onSortChange(key, nextDir);
@@ -155,28 +210,101 @@ export default function EditableTable({ rows, onRowsChange, onSortChange, availa
 
       const available = Array.isArray(availableTags) ? availableTags : [];
 
-      const NativePressable: any = Platform.OS === 'web' ? Pressable : TouchableOpacity;
+      const NativePressable: any =
+        Platform.OS === 'web' ? Pressable : TouchableOpacity;
 
       return (
         <View style={{ flex: 1, padding: 0 }}>
           <NativePressable
             onPress={open}
             activeOpacity={0.8}
-            style={{ paddingVertical: 6, paddingHorizontal: 8, borderWidth: 1, borderColor: value && value.length ? '#BFDBFE' : '#E5E7EB', borderRadius: 8, backgroundColor: value && value.length ? '#EFF6FF' : '#FFFFFF', minHeight: 36, justifyContent: 'center' }}
+            style={{
+              paddingVertical: 6,
+              paddingHorizontal: 8,
+              borderWidth: 1,
+              borderColor: value && value.length ? '#BFDBFE' : '#E5E7EB',
+              borderRadius: 8,
+              backgroundColor: value && value.length ? '#EFF6FF' : '#FFFFFF',
+              minHeight: 36,
+              justifyContent: 'center',
+            }}
           >
-            <Text numberOfLines={1} ellipsizeMode="tail" style={{ color: value && value.length ? '#0B3D91' : '#0F172A', fontSize: 14 }}>{value && value.length ? value.join(', ') : 'Select tags'}</Text>
+            <Text
+              numberOfLines={1}
+              ellipsizeMode="tail"
+              style={{
+                color: value && value.length ? '#0B3D91' : '#0F172A',
+                fontSize: 14,
+              }}
+            >
+              {value && value.length ? value.join(', ') : 'Select tags'}
+            </Text>
           </NativePressable>
 
           {/* Web overlay */}
           {showModalLocal && Platform.OS === 'web' && (
-            <div style={{ position: 'fixed', left: 0, top: 0, right: 0, bottom: 0, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-              <div style={{ background: '#fff', padding: 20, borderRadius: 12, boxShadow: '0 8px 30px rgba(16,24,40,0.08)', minWidth: 360 }}>
+            <div
+              style={{
+                position: 'fixed',
+                left: 0,
+                top: 0,
+                right: 0,
+                bottom: 0,
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+              }}
+            >
+              <div
+                style={{
+                  background: '#fff',
+                  padding: 20,
+                  borderRadius: 12,
+                  boxShadow: '0 8px 30px rgba(16,24,40,0.08)',
+                  minWidth: 360,
+                }}
+              >
                 <div style={{ marginBottom: 12 }}>
-                  <FilterPanel tags={available} value={localValue} onChange={({ tags }) => setLocalValue(tags)} />
+                  <FilterPanel
+                    tags={available}
+                    value={localValue}
+                    onChange={({ tags }) => setLocalValue(tags)}
+                  />
                 </div>
-                <div style={{ display: 'flex', gap: 12, justifyContent: 'flex-end', alignItems: 'center' }}>
-                  <button onClick={() => setShowModalLocal(false)} style={{ padding: '8px 14px', background: '#F3F4F6', border: 'none', borderRadius: 8, color: '#0F172A' }}>Cancel</button>
-                  <button onClick={() => { commitLocal(localValue); }} style={{ padding: '8px 14px', background: '#2563EB', border: 'none', borderRadius: 8, color: '#fff' }}>OK</button>
+                <div
+                  style={{
+                    display: 'flex',
+                    gap: 12,
+                    justifyContent: 'flex-end',
+                    alignItems: 'center',
+                  }}
+                >
+                  <button
+                    onClick={() => setShowModalLocal(false)}
+                    style={{
+                      padding: '8px 14px',
+                      background: '#F3F4F6',
+                      border: 'none',
+                      borderRadius: 8,
+                      color: '#0F172A',
+                    }}
+                  >
+                    Cancel
+                  </button>
+                  <button
+                    onClick={() => {
+                      commitLocal(localValue);
+                    }}
+                    style={{
+                      padding: '8px 14px',
+                      background: '#2563EB',
+                      border: 'none',
+                      borderRadius: 8,
+                      color: '#fff',
+                    }}
+                  >
+                    OK
+                  </button>
                 </div>
               </div>
             </div>
@@ -184,17 +312,42 @@ export default function EditableTable({ rows, onRowsChange, onSortChange, availa
 
           {/* Native modal */}
           {showModalLocal && Platform.OS !== 'web' && (
-            <Modal transparent animationType="fade" visible={!!showModalLocal} onRequestClose={() => setShowModalLocal(false)}>
+            <Modal
+              transparent
+              animationType="fade"
+              visible={!!showModalLocal}
+              onRequestClose={() => setShowModalLocal(false)}
+            >
               <View style={styles.modalOverlay}>
                 <View style={styles.modalContent}>
                   <View style={{ marginBottom: 12 }}>
-                    <FilterPanel tags={available} value={localValue} onChange={({ tags }) => setLocalValue(tags)} />
+                    <FilterPanel
+                      tags={available}
+                      value={localValue}
+                      onChange={({ tags }) => setLocalValue(tags)}
+                    />
                   </View>
-                  <View style={{ flexDirection: 'row', justifyContent: 'flex-end', gap: 8 }}>
-                    <Button onPress={() => setShowModalLocal(false)} style={{ marginRight: 8, backgroundColor: '#F3F4F6' }}>
-                      <ButtonText style={{ color: '#0F172A' }}>Cancel</ButtonText>
+                  <View
+                    style={{
+                      flexDirection: 'row',
+                      justifyContent: 'flex-end',
+                      gap: 8,
+                    }}
+                  >
+                    <Button
+                      onPress={() => setShowModalLocal(false)}
+                      style={{ marginRight: 8, backgroundColor: '#F3F4F6' }}
+                    >
+                      <ButtonText style={{ color: '#0F172A' }}>
+                        Cancel
+                      </ButtonText>
                     </Button>
-                    <Button onPress={() => { commitLocal(localValue); }} style={{ backgroundColor: '#2563EB' }}>
+                    <Button
+                      onPress={() => {
+                        commitLocal(localValue);
+                      }}
+                      style={{ backgroundColor: '#2563EB' }}
+                    >
                       <ButtonText style={{ color: '#fff' }}>OK</ButtonText>
                     </Button>
                   </View>
@@ -207,7 +360,19 @@ export default function EditableTable({ rows, onRowsChange, onSortChange, availa
     };
 
     return (
-      <View style={{ flexDirection: 'row', marginVertical: 6, backgroundColor: '#FFFFFF', borderWidth: 1, borderColor: '#E6EEF8', borderRadius: 10, paddingVertical: 8, paddingHorizontal: 10, alignItems: 'center' }}>
+      <View
+        style={{
+          flexDirection: 'row',
+          marginVertical: 6,
+          backgroundColor: '#FFFFFF',
+          borderWidth: 1,
+          borderColor: '#E6EEF8',
+          borderRadius: 10,
+          paddingVertical: 8,
+          paddingHorizontal: 10,
+          alignItems: 'center',
+        }}
+      >
         <View style={{ flex: 0.95, paddingRight: 8 }}>
           <Input>
             <InputField
@@ -232,16 +397,38 @@ export default function EditableTable({ rows, onRowsChange, onSortChange, availa
   };
 
   return (
-    <View style={{ backgroundColor: '#FFFFFF', padding: 12, borderRadius: 12, shadowColor: '#000', shadowOpacity: 0.04, shadowRadius: 12, elevation: 2, flex: 1 }}>
+    <View
+      style={{
+        backgroundColor: '#FFFFFF',
+        padding: 12,
+        borderRadius: 12,
+        shadowColor: '#000',
+        shadowOpacity: 0.04,
+        shadowRadius: 12,
+        elevation: 2,
+        flex: 1,
+      }}
+    >
       <View style={{ flexDirection: 'row', marginBottom: 8 }}>
-        <Pressable onPress={() => handleHeaderClick('name')} style={{ flex: 1, padding: 8 }}>
-          <Text style={{ color: '#2563EB', fontWeight: '700' }}>Patient Name {sortKey === 'name' ? (sortDir === 'asc' ? '▲' : '▼') : ''}</Text>
+        <Pressable
+          onPress={() => handleHeaderClick('name')}
+          style={{ flex: 1, padding: 8 }}
+        >
+          <Text style={{ color: '#2563EB', fontWeight: '700' }}>
+            Patient Name{' '}
+            {sortKey === 'name' ? (sortDir === 'asc' ? '▲' : '▼') : ''}
+          </Text>
         </Pressable>
         <Pressable style={{ flex: 1, padding: 8 }}>
           <Text style={{ color: '#2563EB', fontWeight: '700' }}>Tags</Text>
         </Pressable>
-        <Pressable onPress={() => handleHeaderClick('date')} style={{ flex: 1, padding: 8 }}>
-          <Text style={{ color: '#2563EB', fontWeight: '700' }}>Date {sortKey === 'date' ? (sortDir === 'asc' ? '▲' : '▼') : ''}</Text>
+        <Pressable
+          onPress={() => handleHeaderClick('date')}
+          style={{ flex: 1, padding: 8 }}
+        >
+          <Text style={{ color: '#2563EB', fontWeight: '700' }}>
+            Date {sortKey === 'date' ? (sortDir === 'asc' ? '▲' : '▼') : ''}
+          </Text>
         </Pressable>
       </View>
 

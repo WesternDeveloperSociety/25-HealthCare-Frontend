@@ -1,6 +1,5 @@
 import { create } from 'zustand';
 
-
 // Removed MMKV storage implementation
 
 export interface User {
