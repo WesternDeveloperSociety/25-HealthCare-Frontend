@@ -1,14 +1,16 @@
-import React from "react";
-import { View } from "@/components/ui/view";
-import DataViewContainer from "@/components/DataViewContainer";
-import { SafeAreaView } from "react-native-safe-area-context";
+import { Box } from '@/components/ui/box';
+import { Text } from '@/components/ui/text';
+import { Center } from '@/components/ui/center';
 
 export default function ServicesScreen() {
 	return (
-		<SafeAreaView style={{ flex: 1, backgroundColor: '#f3f4f6' }}>
-			<View style={{ padding: 12, flex: 1 }}>
-				<DataViewContainer />
-			</View>
-		</SafeAreaView>
+		<Box className="flex-1 bg-background-100">
+			<Center className="flex-1 p-4">
+				<Text className="text-xl font-bold mb-2">Services</Text>
+				<Text className="text-gray-500 text-center">
+					Please check the "Visits" tab and select "Tags" to view the service data table.
+				</Text>
+			</Center>
+		</Box>
 	);
 }

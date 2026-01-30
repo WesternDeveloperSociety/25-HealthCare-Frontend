@@ -66,17 +66,18 @@ export default function DataViewContainer() {
   }, [filters, sort, rows]);
 
   return (
-    <View style={{ padding: 12 }}>
+    <View style={{ padding: 12, flex: 1 }}>
       <Text style={{ marginBottom: 8 }} size="lg">
         Appointment Type
       </Text>
       <FilterPanel tags={allTags} value={filters.tags} onChange={handleFilterChange} />
 
-      <View style={{ marginTop: 12 }}>
+      <View style={{ marginTop: 12, flex: 1 }}>
         <EditableTable rows={filteredRows} onRowsChange={handleRowsChange} onSortChange={handleSortChange} availableTags={allTags} />
       </View>
 
       <View style={{ marginTop: 12 }}>
+
         <Button
           onPress={postConfig}
           style={{
