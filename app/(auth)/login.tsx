@@ -22,15 +22,13 @@ export default function Login() {
   const { isSignedIn } = useAuth();
   const router = useRouter();
 
-
   const [emailAddress, setEmailAddress] = React.useState('');
   const [password, setPassword] = React.useState('');
   const [rememberMe, setRememberMe] = React.useState(false); // TODO: Implement remember me functionality in future PR
-  
+
   if (isSignedIn) {
     return <Redirect href="/(protected)/(user)/dashboard" />;
   }
-
 
   // Handle the submission of the sign-in form
   const handleLogin = async () => {
@@ -51,14 +49,15 @@ export default function Login() {
       } else {
         // If the status isn't complete, check why. User might need to
         // complete further steps.
-        // console.error(JSON.stringify(signInAttempt, null, 2)); 
+        // console.error(JSON.stringify(signInAttempt, null, 2));
       }
     } catch (err: any) {
       // See https://clerk.com/docs/custom-flows/error-handling
       // for more info on error handling
       console.error(err);
 
-      const errorMessage = err.errors?.[0]?.message || err.message || "An unknown error occurred";
+      const errorMessage =
+        err.errors?.[0]?.message || err.message || 'An unknown error occurred';
       alert(errorMessage);
     }
   };
