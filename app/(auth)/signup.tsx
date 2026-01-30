@@ -68,14 +68,12 @@ export default function Signup() {
         await setActive({ session: signUpAttempt.createdSessionId });
         // TODO: call backend /api/users/me to get full user record (id, role, names)
         // Use the Zustand store getter so this works outside of React hooks.
-        useUserStore
-          .getState()
-          .setUser({
-            id: '',
-            clerkID: emailAddress,
-            email: emailAddress,
-            role: null,
-          });
+        useUserStore.getState().setUser({
+          id: '',
+          clerkID: emailAddress,
+          email: emailAddress,
+          role: null,
+        });
         router.replace('/');
       } else {
         // If the status is not complete, check why. User may need to
@@ -93,20 +91,19 @@ export default function Signup() {
         // and if so, try to set active.
         if (signUp.status === 'complete') {
           await setActive({ session: signUp.createdSessionId });
-          useUserStore
-            .getState()
-            .setUser({
-              id: '',
-              clerkID: emailAddress,
-              email: emailAddress,
-              role: null,
-            });
+          useUserStore.getState().setUser({
+            id: '',
+            clerkID: emailAddress,
+            email: emailAddress,
+            role: null,
+          });
           router.replace('/');
           return;
         }
       }
 
-      const errorMessage = err.errors?.[0]?.message || err.message || "An unknown error occurred";
+      const errorMessage =
+        err.errors?.[0]?.message || err.message || 'An unknown error occurred';
       alert(errorMessage);
     }
   };

@@ -56,7 +56,8 @@ export default function Login() {
       // for more info on error handling
       console.error(err);
 
-      const errorMessage = err.errors?.[0]?.message || err.message || "An unknown error occurred";
+      const errorMessage =
+        err.errors?.[0]?.message || err.message || 'An unknown error occurred';
       alert(errorMessage);
     }
   };
