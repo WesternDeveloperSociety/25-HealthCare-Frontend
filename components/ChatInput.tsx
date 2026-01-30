@@ -34,17 +34,16 @@ export default function ChatInput({
         />
       </Input>
 
-<<<<<<< Updated upstream
       <Pressable
         onPress={() => onSend(value)}
         disabled={sending || !value.trim()}
-        style={{ position: 'absolute', right: 16, top: 12 }}
+        style={{ position: 'absolute', right: 10, top: 8 }}
         accessibilityRole="button"
       >
         <Button
-          size="sm"
-          variant="solid"
-          action="primary"
+          size="md"
+          className={`h-8 px-4 rounded-full bg-blue-500 ${sending || !value.trim() ? 'opacity-60' : ''}`}
+          onPress={() => onSend(value)}
           disabled={sending || !value.trim()}
         >
           <ButtonText className="text-white">Send</ButtonText>
@@ -52,26 +51,4 @@ export default function ChatInput({
       </Pressable>
     </Box>
   );
-=======
-			<Pressable
-				onPress={() => {
-					console.log('ChatInput: onPress send value=', value);
-					// onSend(value);
-				}}
-				disabled={sending || !value.trim()}
-				style={{ position: 'absolute', right: 10, top: 8 }}
-				accessibilityRole="button"
-			>
-				<Button
-					size="md"
-					className={`h-8 px-4 rounded-full bg-blue-500 ${sending || !value.trim() ? 'opacity-60' : ''}`}
-					onPress={() => onSend(value)}
-					disabled={sending || !value.trim()}
-				>
-					<ButtonText className="text-white">Send</ButtonText>
-				</Button>
-			</Pressable>
-		</Box>
-	);
->>>>>>> Stashed changes
 }
