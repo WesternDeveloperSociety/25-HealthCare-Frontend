@@ -1,6 +1,6 @@
-import React, { useRef, useState } from 'react';
+import React, { useRef, useState, useEffect } from 'react';
 import { useLocalSearchParams } from 'expo-router';
-import { ScrollView, KeyboardAvoidingView, Platform } from 'react-native';
+import { FlatList, KeyboardAvoidingView, Platform, Keyboard } from 'react-native';
 import { useMutation } from '@tanstack/react-query';
 import { Box } from '@/components/ui/box';
 import { Heading } from '@/components/ui/heading';
@@ -68,7 +68,47 @@ export default function ChatRoomScreen() {
 
   const [text, setText] = useState('');
   // No separate date header state needed — date separators are embedded in `conversations`.
-  const scrollRef = useRef<ScrollView | null>(null);
+  const flatListRef = useRef<FlatList<ChatItem> | null>(null);
+
+  // Local derived messages for the current recipient to ensure FlatList
+  // receives a stable array reference when `conversations` updates.
+  const [messages, setMessages] = useState<ChatItem[]>(conversations[rid] ?? []);
+
+  useEffect(() => {
+    setMessages(conversations[rid] ?? []);
+  }, [conversations, rid]);
+
+  const normalizeTime = (t?: string) => {
+    if (!t) return '';
+    // Match times like "7:17:27 PM", "7:17 PM", "19:17:27" or "19:17"
+    const m = String(t).match(/^(\d{1,2}:\d{2})(:\d{2})?(\s*[AaPp][Mm])?$/);
+    if (m) {
+      const ampm = m[3] ? m[3].toUpperCase() : '';
+      return `${m[1]}${ampm}`.trim();
+    }
+    const parsed = new Date(t);
+    if (!isNaN(parsed.getTime())) {
+      return parsed.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+    }
+    return t;
+  };
+
+  useEffect(() => {
+    const onShow = () => {
+      setTimeout(() => {
+        (flatListRef.current as any)?.scrollToEnd?.({ animated: true }) ||
+          (flatListRef.current as any)?.scrollToOffset?.({ offset: 100000, animated: true });
+      }, 50);
+    };
+
+    const showSub = Keyboard.addListener('keyboardDidShow', onShow);
+    return () => showSub.remove();
+  }, [rid, conversations]);
+
+  // Debug: log conversation for current rid whenever it changes
+  useEffect(() => {
+    console.log('ChatRoomScreen: conversation for', rid, conversations[rid]);
+  }, [rid, conversations]);
 
   // Real API call to send a message.
   // Notes:
@@ -80,24 +120,42 @@ export default function ChatRoomScreen() {
   }) => {
     const API_BASE = (global as any).API_BASE_URL ?? '';
     const url = `${API_BASE}/api/chats/${encodeURIComponent(payload.recipientId)}`;
-
-    const res = await fetch(url, {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-        // 'Authorization': `Bearer ${token}` // add if needed
-      },
-      body: JSON.stringify({ text: payload.text }),
-    });
-
-    if (!res.ok) {
-      const body = await res.text();
-      throw new Error(`Send message failed: ${res.status} ${body}`);
+    // If no API base is set (local/dev mode), mock a successful response so
+    // optimistic updates don't get rolled back during manual testing.
+    if (!API_BASE) {
+      return new Promise<{ id?: string; serverId?: string; time?: string }>((res) =>
+        setTimeout(() =>
+          res({
+            serverId: `local-${Date.now()}`,
+            time: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
+          }),
+        200),
+      );
     }
 
-    // Expect backend to return at least { id: string, time?: string }
-    const data = await res.json();
-    return data as { id?: string; serverId?: string; time?: string };
+    try {
+      const response = await fetch(url, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          // 'Authorization': `Bearer ${token}` // add if needed
+        },
+        body: JSON.stringify({ text: payload.text }),
+      });
+
+      if (!response.ok) {
+        const body = await response.text();
+        throw new Error(`Send message failed: ${response.status} ${body}`);
+      }
+
+      // Expect backend to return at least { id: string, time?: string }
+      const data = await response.json();
+      return data as { id?: string; serverId?: string; time?: string };
+    } catch (err) {
+      // Network or server error — warn and fall back to a local success so optimistic message remains visible during dev.
+      console.warn('sendMessageApi: network error, falling back to local mock', err);
+      return { serverId: `local-${Date.now()}`, time: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }) };
+    }
   };
 
   const mutation = useMutation<
@@ -109,57 +167,78 @@ export default function ChatRoomScreen() {
     mutationFn: sendMessageApi,
     // optimistic update
     onMutate: async (variables: { text: string; recipientId: string }) => {
-      const { text: newText } = variables;
+      const { text: newText, recipientId: targetRid } = variables;
+      console.log('ChatRoomScreen: onMutate variables=', variables);
       if (!newText.trim()) return { previous: conversations };
 
       const prevSnapshot = { ...conversations };
 
       const tempId = `temp-${Date.now()}`;
 
-      setConversations((prev) => {
-        const prevFor = prev[rid] ?? [];
+      // Build items to append
+      const prevFor = prevSnapshot[targetRid] ?? [];
 
-        const todayISO = new Date().toISOString().slice(0, 10);
-        const todayLabel = new Date().toLocaleDateString([], {
-          month: 'long',
-          day: 'numeric',
-        });
-
-        const last = prevFor[prevFor.length - 1];
-        const lastDate = last?.date ?? null;
-
-        const itemsToAppend: ChatItem[] = [];
-
-        if (lastDate !== todayISO) {
-          itemsToAppend.push({
-            id: `d-${Date.now()}`,
-            kind: 'date',
-            label: todayLabel,
-            date: todayISO,
-          });
-        }
-        const messageItem: MessageItem = {
-          id: tempId,
-          kind: 'message',
-          text: newText.trim(),
-          time: new Date().toLocaleTimeString([], {
-            hour: '2-digit',
-            minute: '2-digit',
-          }),
-          fromMe: true,
-          date: todayISO,
-        };
-
-        itemsToAppend.push(messageItem);
-
-        // optimistic append
-        return { ...prev, [rid]: [...prevFor, ...itemsToAppend] };
+      const todayISO = new Date().toISOString().slice(0, 10);
+      const todayLabel = new Date().toLocaleDateString([], {
+        month: 'long',
+        day: 'numeric',
       });
+
+      const last = prevFor[prevFor.length - 1];
+      const lastDate = last?.date ?? null;
+
+      const itemsToAppend: ChatItem[] = [];
+
+      if (lastDate !== todayISO) {
+        itemsToAppend.push({
+          id: `d-${Date.now()}`,
+          kind: 'date',
+          label: todayLabel,
+          date: todayISO,
+        });
+      }
+      const messageItem: MessageItem = {
+        id: tempId,
+        kind: 'message',
+        text: newText.trim(),
+        time: new Date().toLocaleTimeString([], {
+          hour: '2-digit',
+          minute: '2-digit',
+        }),
+        fromMe: true,
+        date: todayISO,
+      };
+
+      itemsToAppend.push(messageItem);
+
+      // Compose next conversations object and update both conversations and messages immediately
+      const nextConversations = { ...prevSnapshot, [targetRid]: [...prevFor, ...itemsToAppend] };
+      console.log('ChatRoomScreen: optimistic next conversation for', targetRid, nextConversations[targetRid]);
+
+      // Update global conversations state and local messages snapshot so UI reflects optimistic change
+      setConversations(nextConversations);
+      setMessages(nextConversations[targetRid]);
+
+      // schedule a scroll to the newly-appended message index
+      const prevLen = (prevSnapshot[targetRid]?.length ?? 0);
+      const newLen = prevLen + itemsToAppend.length;
+      const newIndex = Math.max(0, newLen - 1);
+      setTimeout(() => {
+        try {
+          (flatListRef.current as any)?.scrollToIndex?.({ index: newIndex, animated: true });
+        } catch (e) {
+          // fallback to offset scroll if scrollToIndex fails
+          (flatListRef.current as any)?.scrollToOffset?.({ offset: 100000, animated: true });
+        }
+      }, 80);
 
       // clear local input immediately for optimistic UX
       setText('');
 
-      setTimeout(() => scrollRef.current?.scrollToEnd({ animated: true }), 50);
+      setTimeout(() => {
+        (flatListRef.current as any)?.scrollToEnd?.({ animated: true }) ||
+          (flatListRef.current as any)?.scrollToOffset?.({ offset: 100000, animated: true });
+      }, 50);
 
       return { previous: prevSnapshot, tempId };
     },
@@ -195,7 +274,7 @@ export default function ChatRoomScreen() {
 
         const updated = [...conv];
         const item = updated[idx] as MessageItem;
-        updated[idx] = { ...item, id: serverId, time: data.time ?? item.time };
+        updated[idx] = { ...item, id: serverId, time: normalizeTime(data.time ?? item.time) };
 
         return { ...prev, [variables.recipientId]: updated };
       });
@@ -227,11 +306,15 @@ export default function ChatRoomScreen() {
         behavior={Platform.OS === 'ios' ? 'padding' : undefined}
         style={{ flex: 1 }}
       >
-        <ScrollView
-          ref={scrollRef}
+        <FlatList
+          ref={flatListRef}
+          data={messages}
+          extraData={messages}
+          keyExtractor={(item) => item.id}
           contentContainerStyle={{ padding: 16, paddingBottom: 120 }}
-        >
-          {(conversations[rid] ?? []).map((item) => {
+          keyboardShouldPersistTaps="handled"
+          renderItem={({ item }) => {
+            console.log('ChatRoomScreen: renderItem item=', item.id, item.kind, (item as any).text);
             if (item.kind === 'date') {
               return (
                 <Box key={item.id} className="items-center mb-4">
@@ -240,7 +323,6 @@ export default function ChatRoomScreen() {
               );
             }
 
-            // item is MessageItem
             const m = item as MessageItem;
             return (
               <Box
@@ -262,8 +344,8 @@ export default function ChatRoomScreen() {
                   <Box
                     className={`px-4 py-3 rounded-lg break-words ${
                       m.fromMe
-                        ? 'bg-blue-400 w-60' // darker blue for sent messages
-                        : 'bg-blue-200 max-w-[70%]' // lighter blue for received messages
+                        ? 'bg-blue-400 w-60'
+                        : 'bg-blue-200 max-w-[70%]'
                     }`}
                   >
                     <Text
@@ -273,13 +355,13 @@ export default function ChatRoomScreen() {
                     </Text>
                   </Box>
                   <Text className="text-typography-500 text-xs mt-1">
-                    {m.time}
+                    {normalizeTime(m.time)}
                   </Text>
                 </Box>
               </Box>
             );
-          })}
-        </ScrollView>
+          }}
+        />
 
         {/* Typing bar (input full-width implemented by ChatInput) */}
         <Box className="absolute left-0 right-0 bottom-0 px-4 py-4 bg-background-0">

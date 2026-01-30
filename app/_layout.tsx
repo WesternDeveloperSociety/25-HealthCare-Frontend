@@ -1,3 +1,8 @@
+// Quick dev: set API_BASE_URL for Android emulator (10.0.2.2 -> host machine)
+//http://10.0.2.2:3000
+(global as any).API_BASE_URL = (global as any).API_BASE_URL ?? 'http://10.0.2.2:3000';
+console.log('DEV: API_BASE_URL =', (global as any).API_BASE_URL);
+
 import { GluestackUIProvider } from '@/components/ui/gluestack-ui-provider';
 import '@/global.css';
 import FontAwesome from '@expo/vector-icons/FontAwesome';
