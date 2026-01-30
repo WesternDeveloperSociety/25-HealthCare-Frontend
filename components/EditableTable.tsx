@@ -232,7 +232,7 @@ export default function EditableTable({ rows, onRowsChange, onSortChange, availa
   };
 
   return (
-    <View style={{ backgroundColor: '#FFFFFF', padding: 12, borderRadius: 12, shadowColor: '#000', shadowOpacity: 0.04, shadowRadius: 12, elevation: 2 }}>
+    <View style={{ backgroundColor: '#FFFFFF', padding: 12, borderRadius: 12, shadowColor: '#000', shadowOpacity: 0.04, shadowRadius: 12, elevation: 2, flex: 1 }}>
       <View style={{ flexDirection: 'row', marginBottom: 8 }}>
         <Pressable onPress={() => handleHeaderClick('name')} style={{ flex: 1, padding: 8 }}>
           <Text style={{ color: '#2563EB', fontWeight: '700' }}>Patient Name {sortKey === 'name' ? (sortDir === 'asc' ? '▲' : '▼') : ''}</Text>
@@ -245,7 +245,12 @@ export default function EditableTable({ rows, onRowsChange, onSortChange, availa
         </Pressable>
       </View>
 
-      <FlatList data={sortedRows} renderItem={renderItem} keyExtractor={(i) => i.id} />
+      <FlatList
+        data={sortedRows}
+        renderItem={renderItem}
+        keyExtractor={(i) => i.id}
+        style={{ flex: 1 }}
+      />
       {/* Date editing handled per-row inside DateCell component */}
     </View>
   );

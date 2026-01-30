@@ -10,6 +10,7 @@ import { Card } from '@/components/ui/card';
 import { Heading } from '@/components/ui/heading';
 import { Avatar } from '@/components/ui/avatar';
 import { SafeAreaView } from 'react-native-safe-area-context';
+import DataViewContainer from '@/components/DataViewContainer';
 
 export default function VisitsScreen() {
     const [selectedTab, setSelectedTab] = useState('Calendar');
@@ -127,134 +128,140 @@ export default function VisitsScreen() {
     return (
         <SafeAreaView style={{ flex: 1, backgroundColor: '#f3f4f6' }}>
             <Box className="flex-1 bg-gray-100">
-                <ScrollView contentContainerStyle={{ paddingBottom: 100 }}>
-                    <VStack className="p-4 space-y-6">
-                        {/* Header */}
-                        <Heading size="2xl" className="text-black font-bold">
-                            Visits & Calendar
-                        </Heading>
-                        {/* ... rest of the content ... */}
+                <VStack className="px-4 pt-4 pb-2 space-y-4">
+                    {/* Header */}
+                    <Heading size="2xl" className="text-black font-bold">
+                        Visits & Calendar
+                    </Heading>
 
+                    {/* Calendar/Tags Toggle */}
+                    <HStack className="bg-white rounded-xl p-1">
+                        <Button
+                            variant={selectedTab === 'Calendar' ? 'solid' : 'outline'}
+                            className={`flex-1 ${selectedTab === 'Calendar' ? 'bg-blue-500' : 'bg-transparent border-0'}`}
+                            onPress={() => setSelectedTab('Calendar')}
+                        >
+                            <Text className={selectedTab === 'Calendar' ? 'text-white' : 'text-blue-500'}>
+                                Calendar
+                            </Text>
+                        </Button>
+                        <Button
+                            variant={selectedTab === 'Tags' ? 'solid' : 'outline'}
+                            className={`flex-1 ${selectedTab === 'Tags' ? 'bg-blue-500' : 'bg-transparent border-0'}`}
+                            onPress={() => setSelectedTab('Tags')}
+                        >
+                            <Text className={selectedTab === 'Tags' ? 'text-white' : 'text-blue-500'}>
+                                Tags
+                            </Text>
+                        </Button>
+                    </HStack>
+                </VStack>
 
-                        {/* Calendar/Tags Toggle */}
-                        <HStack className="bg-white rounded-xl p-1">
-                            <Button
-                                variant={selectedTab === 'Calendar' ? 'solid' : 'outline'}
-                                className={`flex-1 ${selectedTab === 'Calendar' ? 'bg-blue-500' : 'bg-transparent border-0'}`}
-                                onPress={() => setSelectedTab('Calendar')}
-                            >
-                                <Text className={selectedTab === 'Calendar' ? 'text-white' : 'text-blue-500'}>
-                                    Calendar
-                                </Text>
-                            </Button>
-                            <Button
-                                variant={selectedTab === 'Tags' ? 'solid' : 'outline'}
-                                className={`flex-1 ${selectedTab === 'Tags' ? 'bg-blue-500' : 'bg-transparent border-0'}`}
-                                onPress={() => setSelectedTab('Tags')}
-                            >
-                                <Text className={selectedTab === 'Tags' ? 'text-white' : 'text-blue-500'}>
-                                    Tags
-                                </Text>
-                            </Button>
-                        </HStack>
+                {selectedTab === 'Calendar' ? (
+                    <ScrollView contentContainerStyle={{ padding: 16, paddingBottom: 100 }}>
+                        <VStack className="space-y-6">
+                            {/* Calendar */}
+                            <Card className="bg-white rounded-xl overflow-hidden">
+                                <Calendar
+                                    current={selectedDate}
+                                    onDayPress={(day: { dateString: React.SetStateAction<string>; }) => {
+                                        setSelectedDate(day.dateString);
+                                    }}
+                                    markedDates={getMarkedDates()}
+                                    theme={{
+                                        backgroundColor: '#ffffff',
+                                        calendarBackground: '#ffffff',
+                                        textSectionTitleColor: '#9CA3AF',
+                                        selectedDayBackgroundColor: '#4F46E5',
+                                        selectedDayTextColor: '#ffffff',
+                                        todayTextColor: '#4F46E5',
+                                        dayTextColor: '#1F2937',
+                                        textDisabledColor: '#D1D5DB',
+                                        dotColor: '#4F46E5',
+                                        selectedDotColor: '#ffffff',
+                                        arrowColor: '#4F46E5',
+                                        monthTextColor: '#1F2937',
+                                        indicatorColor: '#4F46E5',
+                                        textDayFontWeight: '400',
+                                        textMonthFontWeight: '600',
+                                        textDayHeaderFontWeight: '600',
+                                        textDayFontSize: 16,
+                                        textMonthFontSize: 18,
+                                        textDayHeaderFontSize: 14,
+                                    }}
+                                    hideExtraDays={true}
+                                    firstDay={0}
+                                    enableSwipeMonths={true}
+                                />
+                            </Card>
 
-                        {/* Calendar */}
-                        <Card className="bg-white rounded-xl overflow-hidden">
-                            <Calendar
-                                current={selectedDate}
-                                onDayPress={(day: { dateString: React.SetStateAction<string>; }) => {
-                                    setSelectedDate(day.dateString);
-                                }}
-                                markedDates={getMarkedDates()}
-                                theme={{
-                                    backgroundColor: '#ffffff',
-                                    calendarBackground: '#ffffff',
-                                    textSectionTitleColor: '#9CA3AF',
-                                    selectedDayBackgroundColor: '#4F46E5',
-                                    selectedDayTextColor: '#ffffff',
-                                    todayTextColor: '#4F46E5',
-                                    dayTextColor: '#1F2937',
-                                    textDisabledColor: '#D1D5DB',
-                                    dotColor: '#4F46E5',
-                                    selectedDotColor: '#ffffff',
-                                    arrowColor: '#4F46E5',
-                                    monthTextColor: '#1F2937',
-                                    indicatorColor: '#4F46E5',
-                                    textDayFontWeight: '400',
-                                    textMonthFontWeight: '600',
-                                    textDayHeaderFontWeight: '600',
-                                    textDayFontSize: 16,
-                                    textMonthFontSize: 18,
-                                    textDayHeaderFontSize: 14,
-                                }}
-                                hideExtraDays={true}
-                                firstDay={0}
-                                enableSwipeMonths={true}
-                            />
-                        </Card>
+                            {/* Selected Date's Appointments */}
+                            <VStack className="space-y-4">
+                                <Heading size="lg" className="text-black">
+                                    {selectedDateFormatted}
+                                </Heading>
 
-                        {/* Selected Date's Appointments */}
-                        <VStack className="space-y-4">
-                            <Heading size="lg" className="text-black">
-                                {selectedDateFormatted}
-                            </Heading>
+                                {/* if the selected date has appointments */}
+                                {selectedDateAppointments.length > 0 ? (
+                                    selectedDateAppointments.map((appointment) => (
+                                        <Card key={appointment.id} className="bg-white rounded-xl p-4">
+                                            <HStack className="items-center space-x-4">
+                                                {/* Blue indicator line */}
+                                                <Box className="w-1 h-12 bg-blue-500 rounded-full" />
 
-                            {/* if the selected date has appointments */}
-                            {selectedDateAppointments.length > 0 ? (
-                                selectedDateAppointments.map((appointment) => (
-                                    <Card key={appointment.id} className="bg-white rounded-xl p-4">
-                                        <HStack className="items-center space-x-4">
-                                            {/* Blue indicator line */}
-                                            <Box className="w-1 h-12 bg-blue-500 rounded-full" />
+                                                {/* Avatar */}
+                                                <Avatar size="md" className="bg-gray-200">
+                                                    <Text className="text-gray-600 font-medium">
+                                                        {appointment.patientName.charAt(0)}
+                                                    </Text>
+                                                </Avatar>
 
-                                            {/* Avatar */}
-                                            <Avatar size="md" className="bg-gray-200">
-                                                <Text className="text-gray-600 font-medium">
-                                                    {appointment.patientName.charAt(0)}
-                                                </Text>
-                                            </Avatar>
+                                                {/* Appointment Details */}
+                                                <VStack className="flex-1 space-y-1">
+                                                    <Text className="font-semibold text-gray-900">
+                                                        {appointment.patientName}
+                                                    </Text>
+                                                    <Text className="text-gray-600">
+                                                        {appointment.description}
+                                                    </Text>
+                                                    <Text className="text-gray-500 text-sm">
+                                                        {appointment.dateTime}
+                                                    </Text>
+                                                </VStack>
 
-                                            {/* Appointment Details */}
-                                            <VStack className="flex-1 space-y-1">
-                                                <Text className="font-semibold text-gray-900">
-                                                    {appointment.patientName}
-                                                </Text>
-                                                <Text className="text-gray-600">
-                                                    {appointment.description}
-                                                </Text>
-                                                <Text className="text-gray-500 text-sm">
-                                                    {appointment.dateTime}
-                                                </Text>
-                                            </VStack>
-
-                                            {/* Type Badge */}
-                                            <Box
-                                                className={`px-2 py-1 rounded-full ${appointment.type === 'appointment' ? 'bg-blue-100' :
-                                                    appointment.type === 'document' ? 'bg-green-100' : 'bg-yellow-100'
-                                                    }`}
-                                            >
-                                                <Text
-                                                    className={`text-xs font-medium ${appointment.type === 'appointment' ? 'text-blue-700' :
-                                                        appointment.type === 'document' ? 'text-green-700' : 'text-yellow-700'
+                                                {/* Type Badge */}
+                                                <Box
+                                                    className={`px-2 py-1 rounded-full ${appointment.type === 'appointment' ? 'bg-blue-100' :
+                                                        appointment.type === 'document' ? 'bg-green-100' : 'bg-yellow-100'
                                                         }`}
                                                 >
-                                                    {appointment.type.charAt(0).toUpperCase() + appointment.type.slice(1)}
-                                                </Text>
-                                            </Box>
-                                        </HStack>
+                                                    <Text
+                                                        className={`text-xs font-medium ${appointment.type === 'appointment' ? 'text-blue-700' :
+                                                            appointment.type === 'document' ? 'text-green-700' : 'text-yellow-700'
+                                                            }`}
+                                                    >
+                                                        {appointment.type.charAt(0).toUpperCase() + appointment.type.slice(1)}
+                                                    </Text>
+                                                </Box>
+                                            </HStack>
+                                        </Card>
+                                    ))
+                                    //   if date has no appointments 
+                                ) : (
+                                    <Card className="bg-white rounded-xl p-6">
+                                        <Text className="text-gray-500 text-center">
+                                            No appointments for this date
+                                        </Text>
                                     </Card>
-                                ))
-                                //   if date has no appointments 
-                            ) : (
-                                <Card className="bg-white rounded-xl p-6">
-                                    <Text className="text-gray-500 text-center">
-                                        No appointments for this date
-                                    </Text>
-                                </Card>
-                            )}
+                                )}
+                            </VStack>
                         </VStack>
-                    </VStack>
-                </ScrollView>
+                    </ScrollView>
+                ) : (
+                    <Box className="flex-1" style={{ paddingBottom: 110 }}>
+                        <DataViewContainer />
+                    </Box>
+                )}
             </Box>
         </SafeAreaView>
     );
