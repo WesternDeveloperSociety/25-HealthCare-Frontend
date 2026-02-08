@@ -9,6 +9,7 @@ import { useSignUp } from '@clerk/clerk-expo';
 import { useUserStore } from '@/store/userStore';
 
 import { useAuth } from '@clerk/clerk-expo';
+import { Platform } from 'react-native';
 
 export default function Signup() {
   const { isLoaded, signUp, setActive } = useSignUp();
@@ -67,6 +68,9 @@ export default function Signup() {
       if (signUpAttempt.status === 'complete') {
         await setActive({ session: signUpAttempt.createdSessionId });
         // TODO: call backend /api/users/me to get full user record (id, role, names)
+        // Sync user to backend DB
+        await syncUserWithBackend();
+
         // Use the Zustand store getter so this works outside of React hooks.
         useUserStore.getState().setUser({
           id: '',
@@ -91,6 +95,7 @@ export default function Signup() {
         // and if so, try to set active.
         if (signUp.status === 'complete') {
           await setActive({ session: signUp.createdSessionId });
+          await syncUserWithBackend();
           useUserStore.getState().setUser({
             id: '',
             clerkID: emailAddress,
@@ -105,6 +110,27 @@ export default function Signup() {
       const errorMessage =
         err.errors?.[0]?.message || err.message || 'An unknown error occurred';
       alert(errorMessage);
+    }
+  };
+
+  const syncUserWithBackend = async () => {
+    try {
+      const axios = (await import('axios')).default;
+      const baseUrl = Platform.OS === 'android' ? 'http://10.0.2.2:5110' : 'http://localhost:5110';
+
+      await axios.post(`${baseUrl}/api/users`, {
+        role: 'PATIENT',
+        email: emailAddress.toLowerCase(),
+        firstName,
+        lastName,
+        phoneNumber: '0000000000',
+        dateOfBirth: new Date().toISOString(),
+        gender: 'PREFER_NOT_TO_SAY',
+        emergencyContactName: 'None',
+        emergencyContactPhone: '0000000000',
+      });
+    } catch (error: any) {
+      console.error('Failed to sync user with backend:', error?.response?.data || error);
     }
   };
 

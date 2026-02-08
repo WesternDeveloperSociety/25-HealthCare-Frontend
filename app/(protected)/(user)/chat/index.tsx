@@ -1,0 +1,128 @@
+import React, { useState } from 'react';
+import { Platform } from 'react-native';
+import { Box } from '@/components/ui/box';
+import { Pressable } from '@/components/ui/pressable';
+import { Avatar, AvatarFallbackText } from '@/components/ui/avatar';
+import { Fab, FabIcon } from '@/components/ui/fab';
+import { AddIcon, ChevronRightIcon } from '@/components/ui/icon';
+import { Heading } from '@/components/ui/heading';
+import { Text } from '@/components/ui/text';
+import ContactSwipeItem from '@/components/ContactSwipeItem';
+import { useRouter } from 'expo-router';
+import { useQuery } from '@tanstack/react-query';
+import axios from 'axios';
+import { useAuth } from '@clerk/clerk-expo';
+
+export default function ChatRoomList() {
+    const router = useRouter();
+    const { getToken } = useAuth();
+
+    const baseUrl = Platform.OS === 'android' ? 'http://10.0.2.2:5110' : 'http://localhost:5110';
+
+    // Fetch conversations from API
+    const { data: conversations, isLoading, error, refetch } = useQuery({
+        queryKey: ['conversations'],
+        queryFn: async () => {
+            try {
+                const token = await getToken();
+                const res = await axios.get(`${baseUrl}/api/conversations`, {
+                    headers: {
+                        Authorization: `Bearer ${token}`,
+                    },
+                });
+                return res.data;
+            } catch (err) {
+                console.error('ChatRoomList Error:', err);
+                throw err;
+            }
+        }
+    });
+
+    const handleDelete = (id: string) => {
+        // Implement delete mutation
+        console.log('Delete', id);
+    };
+
+    const handleArchive = (id: string) => {
+        console.log('Archive', id);
+    };
+
+    const handleToggleRead = (id: string) => {
+        console.log('Toggle Read', id);
+    };
+
+    if (isLoading) {
+        return <Box className="flex-1 items-center justify-center"><Text>Loading...</Text></Box>;
+    }
+
+    if (error) {
+        return <Box className="flex-1 items-center justify-center"><Text>Error loading chats</Text></Box>;
+    }
+
+    const recipients = conversations || [];
+
+    return (
+        <Box className="flex-1 bg-background-0">
+            {/* Top header */}
+            <Box className="bg-blue-300 rounded-b-2xl py-4 items-center justify-center">
+                <Heading className="text-white font-bold text-2xl">Chats</Heading>
+            </Box>
+
+            {/* Chat list */}
+            <Box className="px-4 pt-4 flex-1">
+                {recipients.length === 0 && (
+                    <Box className="flex-1 items-center justify-center">
+                        <Text className="text-typography-400">No conversations yet</Text>
+                    </Box>
+                )}
+                {recipients.map((c: any) => {
+                    const name = c.title || 'Chat';
+                    const id = c.id;
+                    const unread = false;
+
+                    return (
+                        <ContactSwipeItem
+                            key={id}
+                            id={id}
+                            unread={unread}
+                            onDelete={handleDelete}
+                            onArchive={handleArchive}
+                            onToggleRead={handleToggleRead}
+                        >
+                            <Pressable
+                                onPress={() => {
+                                    router.push(
+                                        `/(protected)/(user)/chat/${id}?name=${encodeURIComponent(name)}` as any
+                                    );
+                                }}
+                                className="flex-row items-center w-full"
+                            >
+                                <Avatar
+                                    size="lg"
+                                    className="bg-white border-2 border-background-0"
+                                >
+                                    <AvatarFallbackText className="text-primary-700">
+                                        {name.substring(0, 2).toUpperCase()}
+                                    </AvatarFallbackText>
+                                </Avatar>
+
+                                <Text className="ml-4 text-lg font-medium">{name}</Text>
+
+                                <Box className="flex-1" />
+
+                                <Box className="w-8 h-8 rounded-lg items-center justify-center bg-blue-200">
+                                    <ChevronRightIcon className="text-white" />
+                                </Box>
+                            </Pressable>
+                        </ContactSwipeItem>
+                    )
+                })}
+            </Box>
+
+            {/* Floating add button */}
+            <Fab onPress={() => { }} placement="bottom right">
+                <FabIcon as={AddIcon} className="text-white" />
+            </Fab>
+        </Box>
+    );
+}
