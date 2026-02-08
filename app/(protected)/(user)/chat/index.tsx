@@ -1,5 +1,4 @@
 import React, { useState } from 'react';
-import { Platform } from 'react-native';
 import { Box } from '@/components/ui/box';
 import { Pressable } from '@/components/ui/pressable';
 import { Avatar, AvatarFallbackText } from '@/components/ui/avatar';
@@ -10,27 +9,18 @@ import { Text } from '@/components/ui/text';
 import ContactSwipeItem from '@/components/ContactSwipeItem';
 import { useRouter } from 'expo-router';
 import { useQuery } from '@tanstack/react-query';
-import axios from 'axios';
-import { useAuth } from '@clerk/clerk-expo';
+import { apiClient } from '@/lib/api';
 
 export default function ChatRoomList() {
     const router = useRouter();
-    const { getToken } = useAuth();
-
-    const baseUrl = Platform.OS === 'android' ? 'http://10.0.2.2:5110' : 'http://localhost:5110';
 
     // Fetch conversations from API
     const { data: conversations, isLoading, error, refetch } = useQuery({
         queryKey: ['conversations'],
         queryFn: async () => {
             try {
-                const token = await getToken();
-                const res = await axios.get(`${baseUrl}/api/conversations`, {
-                    headers: {
-                        Authorization: `Bearer ${token}`,
-                    },
-                });
-                return res.data;
+                const res = await apiClient.get('/conversations');
+                return res;
             } catch (err) {
                 console.error('ChatRoomList Error:', err);
                 throw err;

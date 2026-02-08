@@ -27,6 +27,7 @@ import { useEffect, useState } from 'react';
 import { Slot, usePathname } from 'expo-router';
 import { Fab, FabIcon } from '@/components/ui/fab';
 import { MoonIcon, SunIcon } from '@/components/ui/icon';
+import ClerkTokenSync from '@/components/ClerkTokenSync';
 
 export {
   // Catch any errors thrown by the Layout component.
@@ -63,24 +64,26 @@ export default function RootLayout() {
       publishableKey={process.env.EXPO_PUBLIC_CLERK_PUBLISHABLE_KEY}
       tokenCache={tokenCache}
     >
-      <QueryClientProvider client={queryClient}>
-        <GluestackUIProvider mode={colorMode}>
-          <ThemeProvider value={colorMode === 'dark' ? DarkTheme : DefaultTheme}>
-            <Slot />
-            {pathname === '/' && (
-              <Fab
-                onPress={() =>
-                  setColorMode(colorMode === 'dark' ? 'light' : 'dark')
-                }
-                className="m-6"
-                size="lg"
-              >
-                <FabIcon as={colorMode === 'dark' ? MoonIcon : SunIcon} />
-              </Fab>
-            )}
-          </ThemeProvider>
-        </GluestackUIProvider>
-      </QueryClientProvider>
+      <ClerkTokenSync>
+        <QueryClientProvider client={queryClient}>
+          <GluestackUIProvider mode={colorMode}>
+            <ThemeProvider value={colorMode === 'dark' ? DarkTheme : DefaultTheme}>
+              <Slot />
+              {pathname === '/' && (
+                <Fab
+                  onPress={() =>
+                    setColorMode(colorMode === 'dark' ? 'light' : 'dark')
+                  }
+                  className="m-6"
+                  size="lg"
+                >
+                  <FabIcon as={colorMode === 'dark' ? MoonIcon : SunIcon} />
+                </Fab>
+              )}
+            </ThemeProvider>
+          </GluestackUIProvider>
+        </QueryClientProvider>
+      </ClerkTokenSync>
     </ClerkProvider>
   );
 }
