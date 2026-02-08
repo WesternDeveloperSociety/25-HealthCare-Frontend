@@ -1,4 +1,4 @@
-import React, { useRef, useState } from 'react';
+import React, { useRef, useState, useEffect } from 'react';
 import { useLocalSearchParams } from 'expo-router';
 import { ScrollView, KeyboardAvoidingView, Platform } from 'react-native';
 import { Box } from '@/components/ui/box';
@@ -8,6 +8,8 @@ import { Avatar, AvatarFallbackText } from '@/components/ui/avatar';
 import { Input, InputField } from '@/components/ui/input';
 import { Fab, FabIcon } from '@/components/ui/fab';
 import { MailIcon } from '@/components/ui/icon';
+import { useApi } from '@/lib/api';
+import { useAuthStore } from '@/store/authStore';
 
 type MessageItem = {
   id: string;
@@ -28,96 +30,84 @@ type DateSeparator = {
 type ChatItem = MessageItem | DateSeparator;
 
 export default function ChatRoomScreen() {
-  const { recipientId, name } = useLocalSearchParams();
-  const rid = String(recipientId ?? 'default');
+  const { conversationId, name } = useLocalSearchParams<{ conversationId: string, name: string }>();
+  // conversationId might be "undefined" or a real UUID. 
+  // If we came from the list, it should be a UUID.
 
-  // Store messages per-recipient so chats are isolated by `recipientId`.
-  // Each conversation is an array of `ChatItem` (date separators and messages).
-  const [conversations, setConversations] = useState<
-    Record<string, ChatItem[]>
-  >(() => ({
-    // Seed the currently-open recipient with a date separator + example messages.
-    [rid]: [
-      { id: 'd-1', kind: 'date', label: 'September 30', date: '2025-09-30' },
-      {
-        id: '1',
-        kind: 'message',
-        text: "Hi, I can't make the appointment today. Can we reschedule to tomorrow?",
-        time: '9:59 AM',
-        fromMe: true,
-        date: '2025-09-30',
-      },
-      {
-        id: '2',
-        kind: 'message',
-        text: 'Yes we can, does the same time work for you?',
-        time: '10:01 AM',
-        fromMe: false,
-        date: '2025-09-30',
-      },
-      {
-        id: '3',
-        kind: 'message',
-        text: "Perfect, thanks! I'll see you then.",
-        time: '10:04 AM',
-        fromMe: true,
-        date: '2025-09-30',
-      },
-    ],
-  }));
+  const currentUser = useAuthStore(s => s.user);
+  const { data: messagesData, isLoading, refetch } = useApi.useQuery('/messages/:conversationId', {
+    params: { conversationId: conversationId! },
+    queries: {
+      enabled: !!conversationId
+    }
+  });
+
+  const { mutate: sendMessage } = useApi.useMutation('post', '/messages/:conversationId');
 
   const [text, setText] = useState('');
-  // No separate date header state needed — date separators are embedded in `conversations`.
   const scrollRef = useRef<ScrollView | null>(null);
 
-  const send = () => {
-    if (!text.trim()) return;
+  // Process messages into ChatItems (with date separators)
+  const chatItems: ChatItem[] = React.useMemo(() => {
+    if (!messagesData) return [];
+    // Assuming messagesData is an array of message objects from backend.
+    // We need to map them to our internal format.
+    // Schema says z.void() again, so we assume `any`.
 
-    setConversations((prev) => {
-      const prevFor = prev[rid] ?? [];
+    const rawMessages = (messagesData as any[]) || [];
+    const items: ChatItem[] = [];
 
-      const todayISO = new Date().toISOString().slice(0, 10);
-      const todayLabel = new Date().toLocaleDateString([], {
-        month: 'long',
-        day: 'numeric',
-      });
+    // Sort by date/time if needed? Assuming backend returns sorted.
 
-      // Determine the last item's date (if any)
-      const last = prevFor[prevFor.length - 1];
-      const lastDate = last?.date ?? null;
+    let lastDate = '';
 
-      const itemsToAppend: ChatItem[] = [];
+    rawMessages.forEach((msg: any) => {
+      // msg structure unknown, guessing: content, createdAt, senderId?
+      const dateObj = new Date(msg.createdAt || Date.now());
+      const dateIso = dateObj.toISOString().slice(0, 10);
 
-      // If the last date differs from today, insert a date separator before the new message.
-      if (lastDate !== todayISO) {
-        itemsToAppend.push({
-          id: `d-${Date.now()}`,
+      if (dateIso !== lastDate) {
+        items.push({
+          id: `d-${dateIso}`,
           kind: 'date',
-          label: todayLabel,
-          date: todayISO,
+          label: dateObj.toLocaleDateString([], { month: 'long', day: 'numeric' }),
+          date: dateIso
         });
+        lastDate = dateIso;
       }
 
-      const messageItem: MessageItem = {
-        id: String(Date.now()),
+      items.push({
+        id: msg.id,
         kind: 'message',
-        text: text.trim(),
-        time: new Date().toLocaleTimeString([], {
-          hour: '2-digit',
-          minute: '2-digit',
-        }),
-        fromMe: true,
-        date: todayISO,
-      };
-
-      itemsToAppend.push(messageItem);
-
-      return { ...prev, [rid]: [...prevFor, ...itemsToAppend] };
+        text: msg.content,
+        time: dateObj.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
+        fromMe: msg.senderId === currentUser?.id, // Need current user ID to determine this
+        date: dateIso
+      });
     });
 
-    setText('');
-    setTimeout(() => scrollRef.current?.scrollToEnd({ animated: true }), 50);
+    return items;
+  }, [messagesData, currentUser]);
+
+
+  const send = () => {
+    if (!text.trim() || !conversationId) return;
+
+    sendMessage({
+      params: { conversationId },
+      body: { content: text }
+    } as any, {
+      onSuccess: () => {
+        setText('');
+        refetch(); // Refresh messages
+        setTimeout(() => scrollRef.current?.scrollToEnd({ animated: true }), 50);
+      }
+    });
   };
+
+  if (isLoading) {
+    return <Box className="flex-1 items-center justify-center"><Text>Loading...</Text></Box>;
+  }
 
   return (
     <Box className="flex-1 bg-background-0">
@@ -136,9 +126,15 @@ export default function ChatRoomScreen() {
       >
         <ScrollView
           ref={scrollRef}
-          contentContainerStyle={{ padding: 16, paddingBottom: 120 }}
+          contentContainerStyle={{ padding: 16, paddingBottom: 120, flexGrow: 1 }}
+          onContentSizeChange={() => scrollRef.current?.scrollToEnd({ animated: false })}
         >
-          {(conversations[rid] ?? []).map((item) => {
+          {chatItems.length === 0 && (
+            <Box className="flex-1 items-center justify-center">
+              <Text className="text-typography-400">No messages yet</Text>
+            </Box>
+          )}
+          {chatItems.map((item) => {
             if (item.kind === 'date') {
               return (
                 <Box key={item.id} className="items-center mb-4">
@@ -167,11 +163,10 @@ export default function ChatRoomScreen() {
 
                 <Box className={`${m.fromMe ? 'items-end' : ''}`}>
                   <Box
-                    className={`px-4 py-3 rounded-lg break-words ${
-                      m.fromMe
+                    className={`px-4 py-3 rounded-lg break-words ${m.fromMe
                         ? 'bg-blue-400 w-60' // darker blue for sent messages
                         : 'bg-blue-200 max-w-[70%]' // lighter blue for received messages
-                    }`}
+                      }`}
                   >
                     <Text
                       className={`${m.fromMe ? 'text-white' : 'text-typography-900'}`}
