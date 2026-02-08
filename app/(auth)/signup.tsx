@@ -116,7 +116,10 @@ export default function Signup() {
   const syncUserWithBackend = async () => {
     try {
       const axios = (await import('axios')).default;
-      const baseUrl = Platform.OS === 'android' ? 'http://10.0.2.2:5110' : 'http://localhost:5110';
+      const baseUrl =
+        Platform.OS === 'android'
+          ? 'http://10.0.2.2:5110'
+          : 'http://localhost:5110';
 
       await axios.post(`${baseUrl}/api/users`, {
         role: 'PATIENT',
@@ -130,7 +133,10 @@ export default function Signup() {
         emergencyContactPhone: '0000000000',
       });
     } catch (error: any) {
-      console.error('Failed to sync user with backend:', error?.response?.data || error);
+      console.error(
+        'Failed to sync user with backend:',
+        error?.response?.data || error
+      );
     }
   };
 
