@@ -5,15 +5,24 @@ import { useAuthStore } from '../store/authStore';
 
 import { Platform } from 'react-native';
 
-// Get the API URL from environment variable
-// Fallback logic:
-// - Android Emulator: 10.0.2.2:5110
-// - iOS Simulator / Web: localhost:5110
-const DEFAULT_API_URL =
+// Single source of truth for the backend URL.
+// Set EXPO_PUBLIC_API_URL in .env (see .env.example).
+// Fallback: Android emulator needs 10.0.2.2 to reach the host machine;
+// iOS simulator and web can use localhost.
+const DEFAULT_BASE =
   Platform.OS === 'android'
-    ? 'http://10.0.2.2:5110/api'
-    : 'http://localhost:5110/api';
-const API_URL = process.env.EXPO_PUBLIC_API_URL || DEFAULT_API_URL;
+    ? 'http://10.0.2.2:5110'
+    : 'http://localhost:5110';
+
+/**
+ * Base URL for the backend server (no trailing slash, no /api suffix).
+ * Other modules that need to make direct HTTP calls should import this
+ * instead of hardcoding their own URL.
+ */
+export const API_BASE_URL =
+  process.env.EXPO_PUBLIC_API_URL?.replace(/\/api\/?$/, '') || DEFAULT_BASE;
+
+const API_URL = `${API_BASE_URL}/api`;
 
 // 1. Create the Zodios client using the generated API definition
 export const apiClient = new Zodios(API_URL, generatedApi.api);

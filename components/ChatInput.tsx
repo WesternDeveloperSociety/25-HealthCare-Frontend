@@ -1,8 +1,8 @@
 import React from 'react';
 import { Box } from '@/components/ui/box';
-import { Input, InputField, InputSlot } from '@/components/ui/input';
+import { HStack } from '@/components/ui/hstack';
+import { Input, InputField } from '@/components/ui/input';
 import { Button, ButtonText } from '@/components/ui/button';
-import { Pressable } from 'react-native';
 
 type Props = {
   value: string;
@@ -19,30 +19,36 @@ export default function ChatInput({
   sending = false,
   placeholder = 'Send a message...',
 }: Props) {
+  const disabled = sending || !value.trim();
+
   return (
-    <Box className="relative">
-      <Input
-        size="xl"
-        className="rounded-full w-full bg-background-50 pl-4 pr-1"
-        variant="rounded"
+    <HStack space="sm" className="items-center">
+      <Box className="flex-1">
+        <Input
+          size="xl"
+          className="rounded-full bg-background-50"
+          variant="rounded"
+        >
+          <InputField
+            placeholder={placeholder}
+            value={value}
+            onChangeText={onChangeText}
+            onSubmitEditing={() => {
+              if (!disabled) onSend(value);
+            }}
+            returnKeyType="send"
+            className="py-2 px-4"
+          />
+        </Input>
+      </Box>
+      <Button
+        size="md"
+        className={`h-11 px-5 rounded-full bg-blue-500 ${disabled ? 'opacity-50' : ''}`}
+        onPress={() => onSend(value)}
+        disabled={disabled}
       >
-        <InputField
-          placeholder={placeholder}
-          value={value}
-          onChangeText={onChangeText}
-          className="py-2 flex-1"
-        />
-        <InputSlot className="mr-1">
-          <Button
-            size="md"
-            className={`h-9 px-4 rounded-full bg-blue-500 ${sending || !value.trim() ? 'opacity-60' : ''}`}
-            onPress={() => onSend(value)}
-            disabled={sending || !value.trim()}
-          >
-            <ButtonText className="text-white">Send</ButtonText>
-          </Button>
-        </InputSlot>
-      </Input>
-    </Box>
+        <ButtonText className="text-white font-semibold">Send</ButtonText>
+      </Button>
+    </HStack>
   );
 }

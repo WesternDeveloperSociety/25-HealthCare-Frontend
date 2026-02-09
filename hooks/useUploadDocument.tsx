@@ -5,6 +5,7 @@ import {
   ToastTitle,
   ToastDescription,
 } from '@/components/ui/toast';
+import { API_BASE_URL } from '@/lib/api';
 
 export function useUploadDocument() {
   const toast = useToast();
@@ -28,9 +29,7 @@ export function useUploadDocument() {
       if (file.title) formData.append('title', file.title);
       if (file.docType) formData.append('docType', file.docType);
 
-      // Ensure API_URL is defined or fallback
-      const apiUrl = process.env.API_URL || 'http://localhost:3000';
-      const response = await fetch(`${apiUrl}/api/documents`, {
+      const response = await fetch(`${API_BASE_URL}/api/documents`, {
         method: 'POST',
         body: formData,
         headers: {

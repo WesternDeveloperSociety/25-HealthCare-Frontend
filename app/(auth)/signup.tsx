@@ -9,7 +9,7 @@ import { useSignUp } from '@clerk/clerk-expo';
 import { useUserStore } from '@/store/userStore';
 
 import { useAuth } from '@clerk/clerk-expo';
-import { Platform } from 'react-native';
+import { API_BASE_URL } from '@/lib/api';
 
 export default function Signup() {
   const { isLoaded, signUp, setActive } = useSignUp();
@@ -118,16 +118,12 @@ export default function Signup() {
   const syncUserWithBackend = async () => {
     try {
       const axios = (await import('axios')).default;
-      const baseUrl =
-        Platform.OS === 'android'
-          ? 'http://10.0.2.2:5110'
-          : 'http://localhost:5110';
 
       // Get auth token from Clerk
       const token = await getToken();
 
       await axios.post(
-        `${baseUrl}/api/users`,
+        `${API_BASE_URL}/api/users`,
         {
           role: 'PATIENT',
           email: emailAddress.toLowerCase(),

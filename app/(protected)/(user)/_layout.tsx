@@ -12,6 +12,12 @@ export default function UserLayout() {
       <Tabs.Screen name="services" />
       <Tabs.Screen name="visits" />
       <Tabs.Screen name="profile" />
+      <Tabs.Screen
+        name="chat"
+        options={{
+          href: null, // hidden from tab bar, accessed via navigation
+        }}
+      />
     </Tabs>
   );
 }

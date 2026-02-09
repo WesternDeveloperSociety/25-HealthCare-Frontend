@@ -21,7 +21,7 @@ const ConversationListItem = z
   .passthrough();
 const CreateConversationBody = z
   .object({
-    userIds: z.array(z.string().uuid()).min(1).max(50),
+    userIds: z.array(z.string().min(1)).min(1).max(50),
     title: z.string().min(1).max(100).optional(),
   })
   .passthrough();
@@ -51,7 +51,7 @@ const UpdateConversationBody = z
   .passthrough();
 const AddMemberBody = z
   .object({
-    userId: z.string().uuid(),
+    userId: z.string().min(1),
     role: z.enum(['MEMBER', 'ADMIN']).optional().default('MEMBER'),
   })
   .passthrough();
@@ -283,7 +283,7 @@ const endpoints = makeApi([
       {
         name: 'userId',
         type: 'Path',
-        schema: z.string().uuid(),
+        schema: z.string().min(1),
       },
     ],
     response: z.void(),
@@ -326,7 +326,23 @@ const endpoints = makeApi([
         schema: z.number().nullish(),
       },
     ],
-    response: z.void(),
+    response: z.array(
+      z.object({
+        id: z.string(),
+        conversationId: z.string(),
+        senderId: z.string(),
+        body: z.string(),
+        isRead: z.boolean(),
+        attachments: z.array(z.string()),
+        createdAt: z.string(),
+        updatedAt: z.string(),
+        sender: z.object({
+          firstName: z.string(),
+          lastName: z.string(),
+          role: z.string(),
+        }).passthrough().optional(),
+      }).passthrough()
+    ),
   },
   {
     method: 'post',
@@ -346,7 +362,13 @@ const endpoints = makeApi([
         schema: z.string().uuid(),
       },
     ],
-    response: z.void(),
+    response: z.object({
+      id: z.string(),
+      conversationId: z.string(),
+      senderId: z.string(),
+      body: z.string(),
+      createdAt: z.string(),
+    }).passthrough(),
   },
   {
     method: 'patch',
@@ -415,7 +437,7 @@ const endpoints = makeApi([
       {
         name: 'id',
         type: 'Path',
-        schema: z.string().uuid(),
+        schema: z.string().min(1),
       },
     ],
     response: z.void(),
