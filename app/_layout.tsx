@@ -2,8 +2,7 @@ import { Platform } from 'react-native';
 
 // Quick dev: set API_BASE_URL based on platform
 // Android Emulator: 10.0.2.2, iOS Simulator: localhost
-const devOrigin =
-  Platform.OS === 'android' ? 'http://10.0.2.2:3000' : 'http://localhost:3000';
+const devOrigin = Platform.OS === 'android' ? 'http://10.0.2.2:5110' : 'http://localhost:5110';
 (global as any).API_BASE_URL = (global as any).API_BASE_URL ?? devOrigin;
 console.log('DEV: API_BASE_URL =', (global as any).API_BASE_URL);
 

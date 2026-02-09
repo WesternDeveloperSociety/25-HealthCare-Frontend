@@ -13,19 +13,21 @@ import { Platform } from 'react-native';
 
 export default function Signup() {
   const { isLoaded, signUp, setActive } = useSignUp();
-  const { isSignedIn } = useAuth();
+  const { isSignedIn, getToken } = useAuth();
   const router = useRouter();
 
-  if (isSignedIn) {
-    return <Redirect href="/(protected)/(user)/dashboard" />;
-  }
-
+  // All hooks must be declared before any early returns
   const [firstName, setFirstName] = React.useState('');
   const [lastName, setLastName] = React.useState('');
   const [emailAddress, setEmailAddress] = React.useState('');
   const [password, setPassword] = React.useState('');
   const [pendingVerification, setPendingVerification] = React.useState(false);
   const [code, setCode] = React.useState('');
+
+  // Redirect after hooks are declared
+  if (isSignedIn) {
+    return <Redirect href="/(protected)/(user)/dashboard" />;
+  }
 
   const handleSignup = async () => {
     if (!isLoaded) return;
@@ -121,6 +123,9 @@ export default function Signup() {
           ? 'http://10.0.2.2:5110'
           : 'http://localhost:5110';
 
+      // Get auth token from Clerk
+      const token = await getToken();
+
       await axios.post(`${baseUrl}/api/users`, {
         role: 'PATIENT',
         email: emailAddress.toLowerCase(),
@@ -131,6 +136,10 @@ export default function Signup() {
         gender: 'PREFER_NOT_TO_SAY',
         emergencyContactName: 'None',
         emergencyContactPhone: '0000000000',
+      }, {
+        headers: {
+          Authorization: token ? `Bearer ${token}` : undefined,
+        },
       });
     } catch (error: any) {
       console.error(

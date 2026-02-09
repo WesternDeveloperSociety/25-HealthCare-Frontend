@@ -11,6 +11,65 @@
 import { makeApi, Zodios, type ZodiosOptions } from '@zodios/core';
 import { z } from 'zod';
 
+const ConversationListItem = z
+  .object({
+    id: z.string(),
+    title: z.string().nullable(),
+    isGroup: z.boolean(),
+    createdAt: z.string(),
+  })
+  .passthrough();
+const CreateConversationBody = z
+  .object({
+    userIds: z.array(z.string().uuid()).min(1).max(50),
+    title: z.string().min(1).max(100).optional(),
+  })
+  .passthrough();
+const ConversationDetail = z
+  .object({
+    id: z.string(),
+    title: z.string().nullable(),
+    isGroup: z.boolean(),
+    createdAt: z.string(),
+    members: z.array(
+      z
+        .object({
+          id: z.string(),
+          userId: z.string(),
+          role: z.string(),
+          user: z
+            .object({ firstName: z.string(), lastName: z.string() })
+            .passthrough()
+            .optional(),
+        })
+        .passthrough()
+    ),
+  })
+  .passthrough();
+const UpdateConversationBody = z
+  .object({ title: z.string().min(1).max(100) })
+  .passthrough();
+const AddMemberBody = z
+  .object({
+    userId: z.string().uuid(),
+    role: z.enum(['MEMBER', 'ADMIN']).optional().default('MEMBER'),
+  })
+  .passthrough();
+const PostMessageBody = z
+  .object({
+    content: z.string().min(1).max(10000),
+    attachments: z.array(z.string()).max(10).optional(),
+  })
+  .passthrough();
+const UserListItem = z
+  .object({
+    id: z.string(),
+    firstName: z.string(),
+    lastName: z.string(),
+    email: z.string().email(),
+    role: z.enum(['PATIENT', 'DOCTOR', 'ADMIN']),
+  })
+  .passthrough();
 const CreateUserBody = z.union([
   z
     .object({
@@ -83,35 +142,17 @@ const UpdateUserBody = z
     emergencyContactPhone: z.string().min(10).max(15).optional(),
   })
   .passthrough();
-const PostMessageBody = z
-  .object({
-    content: z.string().min(1).max(10000),
-    attachments: z.array(z.string().url()).max(10).optional(),
-  })
-  .passthrough();
-const CreateConversationBody = z
-  .object({
-    userIds: z.array(z.string().uuid()).min(1).max(50),
-    title: z.string().min(1).max(100).optional(),
-  })
-  .passthrough();
-const UpdateConversationBody = z
-  .object({ title: z.string().min(1).max(100) })
-  .passthrough();
-const AddMemberBody = z
-  .object({
-    userId: z.string().uuid(),
-    role: z.enum(['MEMBER', 'ADMIN']).optional().default('MEMBER'),
-  })
-  .passthrough();
 
 export const schemas = {
-  CreateUserBody,
-  UpdateUserBody,
-  PostMessageBody,
+  ConversationListItem,
   CreateConversationBody,
+  ConversationDetail,
   UpdateConversationBody,
   AddMemberBody,
+  PostMessageBody,
+  UserListItem,
+  CreateUserBody,
+  UpdateUserBody,
 };
 
 const endpoints = makeApi([
@@ -133,7 +174,7 @@ const endpoints = makeApi([
         schema: z.number().gte(0).nullish().default(0),
       },
     ],
-    response: z.void(),
+    response: z.array(ConversationListItem),
   },
   {
     method: 'post',
@@ -148,7 +189,7 @@ const endpoints = makeApi([
         schema: CreateConversationBody,
       },
     ],
-    response: z.void(),
+    response: ConversationDetail,
   },
   {
     method: 'get',
@@ -326,6 +367,21 @@ const endpoints = makeApi([
       },
     ],
     response: z.void(),
+  },
+  {
+    method: 'get',
+    path: '/users',
+    alias: 'getUsers',
+    description: `List all users for chat selection`,
+    requestFormat: 'json',
+    response: z.array(UserListItem),
+    errors: [
+      {
+        status: 401,
+        description: `Unauthorized`,
+        schema: z.void(),
+      },
+    ],
   },
   {
     method: 'post',
