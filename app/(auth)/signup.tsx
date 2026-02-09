@@ -126,21 +126,25 @@ export default function Signup() {
       // Get auth token from Clerk
       const token = await getToken();
 
-      await axios.post(`${baseUrl}/api/users`, {
-        role: 'PATIENT',
-        email: emailAddress.toLowerCase(),
-        firstName,
-        lastName,
-        phoneNumber: '0000000000',
-        dateOfBirth: new Date().toISOString(),
-        gender: 'PREFER_NOT_TO_SAY',
-        emergencyContactName: 'None',
-        emergencyContactPhone: '0000000000',
-      }, {
-        headers: {
-          Authorization: token ? `Bearer ${token}` : undefined,
+      await axios.post(
+        `${baseUrl}/api/users`,
+        {
+          role: 'PATIENT',
+          email: emailAddress.toLowerCase(),
+          firstName,
+          lastName,
+          phoneNumber: '0000000000',
+          dateOfBirth: new Date().toISOString(),
+          gender: 'PREFER_NOT_TO_SAY',
+          emergencyContactName: 'None',
+          emergencyContactPhone: '0000000000',
         },
-      });
+        {
+          headers: {
+            Authorization: token ? `Bearer ${token}` : undefined,
+          },
+        }
+      );
     } catch (error: any) {
       console.error(
         'Failed to sync user with backend:',

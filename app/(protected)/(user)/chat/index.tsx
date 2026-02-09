@@ -50,7 +50,7 @@ export default function ChatRoomList() {
         return [];
       }
     },
-    enabled: showNewChat
+    enabled: showNewChat,
   });
 
   // Create conversation mutation
@@ -61,11 +61,13 @@ export default function ChatRoomList() {
     onSuccess: (newConvo: any) => {
       setShowNewChat(false);
       queryClient.invalidateQueries({ queryKey: ['conversations'] });
-      router.push(`/(protected)/(user)/chat/${newConvo.id}?name=${encodeURIComponent(newConvo.title || 'Chat')}` as any);
+      router.push(
+        `/(protected)/(user)/chat/${newConvo.id}?name=${encodeURIComponent(newConvo.title || 'Chat')}` as any
+      );
     },
     onError: (err: any) => {
       console.error('Create Conversation Error:', err?.response?.data || err);
-    }
+    },
   });
 
   const handleDelete = (id: string) => {
@@ -110,13 +112,17 @@ export default function ChatRoomList() {
         {error && !isLoading && (
           <Box className="flex-1 items-center justify-center">
             <Text className="text-typography-400">Error loading chats</Text>
-            <Text className="text-typography-400 text-sm mt-2">Tap + to start a new chat</Text>
+            <Text className="text-typography-400 text-sm mt-2">
+              Tap + to start a new chat
+            </Text>
           </Box>
         )}
         {!isLoading && !error && recipients.length === 0 && (
           <Box className="flex-1 items-center justify-center">
             <Text className="text-typography-400">No conversations yet</Text>
-            <Text className="text-typography-400 text-sm mt-2">Tap + to start a new chat</Text>
+            <Text className="text-typography-400 text-sm mt-2">
+              Tap + to start a new chat
+            </Text>
           </Box>
         )}
         {recipients.map((c: any) => {
@@ -159,7 +165,7 @@ export default function ChatRoomList() {
                 </Box>
               </Pressable>
             </ContactSwipeItem>
-          )
+          );
         })}
       </Box>
 
@@ -189,15 +195,19 @@ export default function ChatRoomList() {
 
             {/* Users list */}
             <ScrollView className="flex-1">
-              {(!users || users.length === 0) ? (
+              {!users || users.length === 0 ? (
                 <Box className="items-center py-8">
                   <Text className="text-typography-400">Loading users...</Text>
-                  <Text className="text-typography-300 text-sm mt-2">If this persists, restart the backend server</Text>
+                  <Text className="text-typography-300 text-sm mt-2">
+                    If this persists, restart the backend server
+                  </Text>
                 </Box>
               ) : (
                 users
                   .filter((u: any) =>
-                    `${u.firstName} ${u.lastName}`.toLowerCase().includes(searchQuery.toLowerCase())
+                    `${u.firstName} ${u.lastName}`
+                      .toLowerCase()
+                      .includes(searchQuery.toLowerCase())
                   )
                   .map((user: any) => (
                     <Pressable
@@ -207,17 +217,24 @@ export default function ChatRoomList() {
                     >
                       <Avatar size="md" className="bg-blue-200">
                         <AvatarFallbackText>
-                          {user.firstName?.charAt(0)}{user.lastName?.charAt(0)}
+                          {user.firstName?.charAt(0)}
+                          {user.lastName?.charAt(0)}
                         </AvatarFallbackText>
                       </Avatar>
-                      <Text className="ml-3">{user.firstName} {user.lastName}</Text>
+                      <Text className="ml-3">
+                        {user.firstName} {user.lastName}
+                      </Text>
                     </Pressable>
                   ))
               )}
             </ScrollView>
 
             {/* Cancel button at bottom */}
-            <Button variant="outline" onPress={() => setShowNewChat(false)} className="mt-4">
+            <Button
+              variant="outline"
+              onPress={() => setShowNewChat(false)}
+              className="mt-4"
+            >
               <ButtonText>Cancel</ButtonText>
             </Button>
           </Box>
