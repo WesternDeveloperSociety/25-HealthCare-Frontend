@@ -10,9 +10,7 @@ import { Platform } from 'react-native';
 // Fallback: Android emulator needs 10.0.2.2 to reach the host machine;
 // iOS simulator and web can use localhost.
 const DEFAULT_BASE =
-  Platform.OS === 'android'
-    ? 'http://10.0.2.2:5110'
-    : 'http://localhost:5110';
+  Platform.OS === 'android' ? 'http://10.0.2.2:5110' : 'http://localhost:5110';
 
 /**
  * Base URL for the backend server (no trailing slash, no /api suffix).

@@ -327,21 +327,26 @@ const endpoints = makeApi([
       },
     ],
     response: z.array(
-      z.object({
-        id: z.string(),
-        conversationId: z.string(),
-        senderId: z.string(),
-        body: z.string(),
-        isRead: z.boolean(),
-        attachments: z.array(z.string()),
-        createdAt: z.string(),
-        updatedAt: z.string(),
-        sender: z.object({
-          firstName: z.string(),
-          lastName: z.string(),
-          role: z.string(),
-        }).passthrough().optional(),
-      }).passthrough()
+      z
+        .object({
+          id: z.string(),
+          conversationId: z.string(),
+          senderId: z.string(),
+          body: z.string(),
+          isRead: z.boolean(),
+          attachments: z.array(z.string()),
+          createdAt: z.string(),
+          updatedAt: z.string(),
+          sender: z
+            .object({
+              firstName: z.string(),
+              lastName: z.string(),
+              role: z.string(),
+            })
+            .passthrough()
+            .optional(),
+        })
+        .passthrough()
     ),
   },
   {
@@ -362,13 +367,15 @@ const endpoints = makeApi([
         schema: z.string().uuid(),
       },
     ],
-    response: z.object({
-      id: z.string(),
-      conversationId: z.string(),
-      senderId: z.string(),
-      body: z.string(),
-      createdAt: z.string(),
-    }).passthrough(),
+    response: z
+      .object({
+        id: z.string(),
+        conversationId: z.string(),
+        senderId: z.string(),
+        body: z.string(),
+        createdAt: z.string(),
+      })
+      .passthrough(),
   },
   {
     method: 'patch',

@@ -24,9 +24,7 @@ function getConversationDisplayName(
 
   // For 1:1 chats, show the other member's name
   const members: any[] = conversation.members ?? [];
-  const otherMember = members.find(
-    (m: any) => m.userId !== currentUserId
-  );
+  const otherMember = members.find((m: any) => m.userId !== currentUserId);
 
   if (otherMember?.user) {
     const { firstName, lastName } = otherMember.user;
@@ -94,16 +92,16 @@ export default function ChatRoomList() {
       setShowNewChat(false);
       queryClient.invalidateQueries({ queryKey: ['conversations'] });
 
-      const displayName = getConversationDisplayName(newConvo, currentUserId ?? undefined);
+      const displayName = getConversationDisplayName(
+        newConvo,
+        currentUserId ?? undefined
+      );
       router.push(
         `/(protected)/(user)/chat/${newConvo.id}?name=${encodeURIComponent(displayName)}` as any
       );
     },
     onError: (err: any) => {
-      console.error(
-        'Create Conversation Error:',
-        err?.response?.data || err
-      );
+      console.error('Create Conversation Error:', err?.response?.data || err);
     },
   });
 
@@ -171,7 +169,10 @@ export default function ChatRoomList() {
           </Box>
         )}
         {recipients.map((c: any) => {
-          const name = getConversationDisplayName(c, currentUserId ?? undefined);
+          const name = getConversationDisplayName(
+            c,
+            currentUserId ?? undefined
+          );
           const id = c.id;
           const preview = getLastMessagePreview(c);
           const unread = false;
@@ -253,9 +254,7 @@ export default function ChatRoomList() {
             <ScrollView className="flex-1">
               {!users || users.length === 0 ? (
                 <Box className="items-center py-8">
-                  <Text className="text-typography-400">
-                    Loading users...
-                  </Text>
+                  <Text className="text-typography-400">Loading users...</Text>
                   <Text className="text-typography-300 text-sm mt-2">
                     If this persists, restart the backend server
                   </Text>

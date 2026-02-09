@@ -40,10 +40,7 @@ export default function ChatRoomScreen() {
 
   const { userId: currentUserId } = useAuth();
 
-  const {
-    data: messagesData,
-    isLoading,
-  } = useQuery({
+  const { data: messagesData, isLoading } = useQuery({
     queryKey: ['messages', conversationId],
     queryFn: () =>
       apiClient.get('/messages/:conversationId', {
@@ -96,7 +93,8 @@ export default function ChatRoomScreen() {
       // Backend field is `body`, not `content`
       const senderFirst = msg.sender?.firstName ?? '';
       const senderLast = msg.sender?.lastName ?? '';
-      const senderName = [senderFirst, senderLast].filter(Boolean).join(' ') || 'Unknown';
+      const senderName =
+        [senderFirst, senderLast].filter(Boolean).join(' ') || 'Unknown';
 
       items.push({
         id: msg.id,
@@ -249,7 +247,8 @@ export default function ChatRoomScreen() {
         </ScrollView>
 
         {/* Input bar -- padded above the floating CustomNavBar */}
-        <Box className="px-4 pt-3 pb-2 bg-background-0 border-t border-outline-100"
+        <Box
+          className="px-4 pt-3 pb-2 bg-background-0 border-t border-outline-100"
           style={{ marginBottom: 100 }}
         >
           <ChatInput
