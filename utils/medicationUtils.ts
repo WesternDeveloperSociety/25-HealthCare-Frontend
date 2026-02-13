@@ -2,10 +2,10 @@
 // Utility functions for medication tracking and refill status calculation
 
 export interface MedicationRefillStatus {
-    daysRemaining: number;
-    status: 'Critical' | 'Upcoming' | 'Normal';
-    color: string;
-    message: string;
+  daysRemaining: number;
+  status: 'Critical' | 'Upcoming' | 'Normal';
+  color: string;
+  message: string;
 }
 
 /**
@@ -15,50 +15,50 @@ export interface MedicationRefillStatus {
  * @returns MedicationRefillStatus object with status, color, and message
  */
 export function calculateRefillStatus(
-    startDate: string | Date,
-    duration: number
+  startDate: string | Date,
+  duration: number
 ): MedicationRefillStatus {
-    const start = typeof startDate === 'string' ? new Date(startDate) : startDate;
-    const today = new Date();
+  const start = typeof startDate === 'string' ? new Date(startDate) : startDate;
+  const today = new Date();
 
-    // Calculate expiry date
-    const expiryDate = new Date(start);
-    expiryDate.setDate(expiryDate.getDate() + duration);
+  // Calculate expiry date
+  const expiryDate = new Date(start);
+  expiryDate.setDate(expiryDate.getDate() + duration);
 
-    // Calculate days remaining
-    const timeDiff = expiryDate.getTime() - today.getTime();
-    const daysRemaining = Math.ceil(timeDiff / (1000 * 60 * 60 * 24));
+  // Calculate days remaining
+  const timeDiff = expiryDate.getTime() - today.getTime();
+  const daysRemaining = Math.ceil(timeDiff / (1000 * 60 * 60 * 24));
 
-    // Determine status based on days remaining
-    if (daysRemaining < 0) {
-        return {
-            daysRemaining: 0,
-            status: 'Critical',
-            color: '#EF4444', // Red
-            message: 'Expired - Refill immediately',
-        };
-    } else if (daysRemaining < 3) {
-        return {
-            daysRemaining,
-            status: 'Critical',
-            color: '#EF4444', // Red
-            message: 'Refill urgently needed',
-        };
-    } else if (daysRemaining < 7) {
-        return {
-            daysRemaining,
-            status: 'Upcoming',
-            color: '#F59E0B', // Yellow/Amber
-            message: 'Refill soon',
-        };
-    } else {
-        return {
-            daysRemaining,
-            status: 'Normal',
-            color: '#10B981', // Green
-            message: 'Supply is good',
-        };
-    }
+  // Determine status based on days remaining
+  if (daysRemaining < 0) {
+    return {
+      daysRemaining: 0,
+      status: 'Critical',
+      color: '#EF4444', // Red
+      message: 'Expired - Refill immediately',
+    };
+  } else if (daysRemaining < 3) {
+    return {
+      daysRemaining,
+      status: 'Critical',
+      color: '#EF4444', // Red
+      message: 'Refill urgently needed',
+    };
+  } else if (daysRemaining < 7) {
+    return {
+      daysRemaining,
+      status: 'Upcoming',
+      color: '#F59E0B', // Yellow/Amber
+      message: 'Refill soon',
+    };
+  } else {
+    return {
+      daysRemaining,
+      status: 'Normal',
+      color: '#10B981', // Green
+      message: 'Supply is good',
+    };
+  }
 }
 
 /**
@@ -68,12 +68,12 @@ export function calculateRefillStatus(
  * @returns Progress percentage (0-100)
  */
 export function calculateProgress(
-    daysRemaining: number,
-    totalDuration: number
+  daysRemaining: number,
+  totalDuration: number
 ): number {
-    if (totalDuration <= 0) return 0;
-    const progress = (daysRemaining / totalDuration) * 100;
-    return Math.max(0, Math.min(100, progress));
+  if (totalDuration <= 0) return 0;
+  const progress = (daysRemaining / totalDuration) * 100;
+  return Math.max(0, Math.min(100, progress));
 }
 
 /**
@@ -82,7 +82,7 @@ export function calculateProgress(
  * @returns Formatted string
  */
 export function formatDaysRemaining(days: number): string {
-    if (days === 0) return 'Expired';
-    if (days === 1) return '1 day';
-    return `${days} days`;
+  if (days === 0) return 'Expired';
+  if (days === 1) return '1 day';
+  return `${days} days`;
 }

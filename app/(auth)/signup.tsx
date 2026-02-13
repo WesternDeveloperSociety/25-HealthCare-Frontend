@@ -9,22 +9,25 @@ import { useSignUp } from '@clerk/clerk-expo';
 import { useUserStore } from '@/store/userStore';
 
 import { useAuth } from '@clerk/clerk-expo';
+import { API_BASE_URL } from '@/lib/api';
 
 export default function Signup() {
   const { isLoaded, signUp, setActive } = useSignUp();
-  const { isSignedIn } = useAuth();
+  const { isSignedIn, getToken } = useAuth();
   const router = useRouter();
 
-  if (isSignedIn) {
-    return <Redirect href="/(protected)/(user)/dashboard" />;
-  }
-
+  // All hooks must be declared before any early returns
   const [firstName, setFirstName] = React.useState('');
   const [lastName, setLastName] = React.useState('');
   const [emailAddress, setEmailAddress] = React.useState('');
   const [password, setPassword] = React.useState('');
   const [pendingVerification, setPendingVerification] = React.useState(false);
   const [code, setCode] = React.useState('');
+
+  // Redirect after hooks are declared
+  if (isSignedIn) {
+    return <Redirect href="/(protected)/(user)/dashboard" />;
+  }
 
   const handleSignup = async () => {
     if (!isLoaded) return;
@@ -67,6 +70,9 @@ export default function Signup() {
       if (signUpAttempt.status === 'complete') {
         await setActive({ session: signUpAttempt.createdSessionId });
         // TODO: call backend /api/users/me to get full user record (id, role, names)
+        // Sync user to backend DB
+        await syncUserWithBackend();
+
         // Use the Zustand store getter so this works outside of React hooks.
         useUserStore.getState().setUser({
           id: '',
@@ -91,6 +97,7 @@ export default function Signup() {
         // and if so, try to set active.
         if (signUp.status === 'complete') {
           await setActive({ session: signUp.createdSessionId });
+          await syncUserWithBackend();
           useUserStore.getState().setUser({
             id: '',
             clerkID: emailAddress,
@@ -105,6 +112,40 @@ export default function Signup() {
       const errorMessage =
         err.errors?.[0]?.message || err.message || 'An unknown error occurred';
       alert(errorMessage);
+    }
+  };
+
+  const syncUserWithBackend = async () => {
+    try {
+      const axios = (await import('axios')).default;
+
+      // Get auth token from Clerk
+      const token = await getToken();
+
+      await axios.post(
+        `${API_BASE_URL}/api/users`,
+        {
+          role: 'PATIENT',
+          email: emailAddress.toLowerCase(),
+          firstName,
+          lastName,
+          phoneNumber: '0000000000',
+          dateOfBirth: new Date().toISOString(),
+          gender: 'PREFER_NOT_TO_SAY',
+          emergencyContactName: 'None',
+          emergencyContactPhone: '0000000000',
+        },
+        {
+          headers: {
+            Authorization: token ? `Bearer ${token}` : undefined,
+          },
+        }
+      );
+    } catch (error: any) {
+      console.error(
+        'Failed to sync user with backend:',
+        error?.response?.data || error
+      );
     }
   };
 

@@ -17,16 +17,41 @@ export default function CustomNavBar() {
 
   const tabs: Array<{
     name: string;
-    label: string,
+    label: string;
     icon: any;
     route: string;
   }> = [
-      { name: 'upload', label: 'Upload', icon: Upload, route: '/(protected)/(user)/upload' },
-      { name: 'medications', label: 'Meds', icon: Pill, route: '/(protected)/(user)/medications' },
-      { name: 'dashboard', label: 'Home', icon: HeartPlus, route: '/(protected)/(user)/dashboard' },
-      { name: 'visits', label: 'Visits', icon: Calendar, route: '/(protected)/(user)/visits' },
-      { name: 'profile', label: 'Profile', icon: UserRound, route: '/(protected)/(user)/profile' },
-    ];
+    {
+      name: 'upload',
+      label: 'Upload',
+      icon: Upload,
+      route: '/(protected)/(user)/upload',
+    },
+    {
+      name: 'medications',
+      label: 'Meds',
+      icon: Pill,
+      route: '/(protected)/(user)/medications',
+    },
+    {
+      name: 'dashboard',
+      label: 'Home',
+      icon: HeartPlus,
+      route: '/(protected)/(user)/dashboard',
+    },
+    {
+      name: 'visits',
+      label: 'Visits',
+      icon: Calendar,
+      route: '/(protected)/(user)/visits',
+    },
+    {
+      name: 'profile',
+      label: 'Profile',
+      icon: UserRound,
+      route: '/(protected)/(user)/profile',
+    },
+  ];
 
   return (
     <Box

@@ -1,11 +1,3 @@
-import { Platform } from 'react-native';
-
-// Quick dev: set API_BASE_URL based on platform
-// Android Emulator: 10.0.2.2, iOS Simulator: localhost
-const devOrigin = Platform.OS === 'android' ? 'http://10.0.2.2:3000' : 'http://localhost:3000';
-(global as any).API_BASE_URL = (global as any).API_BASE_URL ?? devOrigin;
-console.log('DEV: API_BASE_URL =', (global as any).API_BASE_URL);
-
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 
 const queryClient = new QueryClient();
@@ -27,6 +19,7 @@ import { useEffect, useState } from 'react';
 import { Slot, usePathname } from 'expo-router';
 import { Fab, FabIcon } from '@/components/ui/fab';
 import { MoonIcon, SunIcon } from '@/components/ui/icon';
+import ClerkTokenSync from '@/components/ClerkTokenSync';
 
 export {
   // Catch any errors thrown by the Layout component.
@@ -63,24 +56,28 @@ export default function RootLayout() {
       publishableKey={process.env.EXPO_PUBLIC_CLERK_PUBLISHABLE_KEY}
       tokenCache={tokenCache}
     >
-      <QueryClientProvider client={queryClient}>
-        <GluestackUIProvider mode={colorMode}>
-          <ThemeProvider value={colorMode === 'dark' ? DarkTheme : DefaultTheme}>
-            <Slot />
-            {pathname === '/' && (
-              <Fab
-                onPress={() =>
-                  setColorMode(colorMode === 'dark' ? 'light' : 'dark')
-                }
-                className="m-6"
-                size="lg"
-              >
-                <FabIcon as={colorMode === 'dark' ? MoonIcon : SunIcon} />
-              </Fab>
-            )}
-          </ThemeProvider>
-        </GluestackUIProvider>
-      </QueryClientProvider>
+      <ClerkTokenSync>
+        <QueryClientProvider client={queryClient}>
+          <GluestackUIProvider mode={colorMode}>
+            <ThemeProvider
+              value={colorMode === 'dark' ? DarkTheme : DefaultTheme}
+            >
+              <Slot />
+              {pathname === '/' && (
+                <Fab
+                  onPress={() =>
+                    setColorMode(colorMode === 'dark' ? 'light' : 'dark')
+                  }
+                  className="m-6"
+                  size="lg"
+                >
+                  <FabIcon as={colorMode === 'dark' ? MoonIcon : SunIcon} />
+                </Fab>
+              )}
+            </ThemeProvider>
+          </GluestackUIProvider>
+        </QueryClientProvider>
+      </ClerkTokenSync>
     </ClerkProvider>
   );
 }
